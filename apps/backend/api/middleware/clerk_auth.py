@@ -48,9 +48,11 @@ class ClerkAuthMiddleware:
             if not user_data:
                 return JsonResponse({'error': 'Invalid token'}, status=401)
             
-            clerk_user_id = user_data.get('sub')  # Clerk user ID
-            email = user_data.get('email_addresses', [{}])[0].get('email_address')
-            full_name = f"{user_data.get('first_name', '')} {user_data.get('last_name', '')}".strip()
+            clerk_user_id = user_data.get('user_id')  # Clerk user ID
+            email = user_data.get('email')
+            first_name = user_data.get('first_name', '')
+            last_name = user_data.get('last_name', '')
+            full_name = user_data.get('full_name') or f"{first_name} {last_name}".strip()
             
             # Get or create user
             user, created = User.objects.get_or_create(
