@@ -1,99 +1,33 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useApiClient, transformAnnouncement, type Announcement, ApiError } from "../lib/api";
 
-export interface Announcement {
-  id: number;
-  title: string;
-  content: string;
-  summary: string;
-  author: string;
-  publishedAt: string;
-  status: "published" | "draft";
-}
-
-// Mock API functions - replace with actual API calls
-const mockAnnouncements: Announcement[] = [
-  {
-    id: 1,
-    title: "Welcome to the New Semester!",
-    content: "We're excited to kick off another semester of CS Club activities. Our first general meeting will be held this Friday at 6 PM in the Engineering Building. We'll be discussing upcoming events, workshops, and how you can get involved!",
-    summary: "First general meeting this Friday at 6 PM in Engineering Building.",
-    author: "John Smith",
-    publishedAt: "2024-01-15T10:00:00Z",
-    status: "published" as const,
-  },
-  {
-    id: 2,
-    title: "Hackathon Registration Now Open",
-    content: "Our annual hackathon is coming up! Registration is now open for all students. Teams of up to 4 people can participate. Prizes include cash awards and internship opportunities with local tech companies. Register by February 1st to secure your spot.",
-    summary: "Annual hackathon registration open until February 1st.",
-    author: "Sarah Johnson",
-    publishedAt: "2024-01-20T14:30:00Z",
-    status: "published" as const,
-  },
-  {
-    id: 3,
-    title: "New Officer Applications",
-    content: "We're looking for passionate students to join our officer team for the next academic year. Positions available include Vice President, Secretary, and Event Coordinator. Applications are due March 15th.",
-    summary: "Officer applications available, due March 15th.",
-    author: "Mike Davis",
-    publishedAt: "2024-01-25T09:15:00Z",
-    status: "draft" as const,
-  },
-];
-
-const fetchAnnouncements = (): Promise<Announcement[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve([...mockAnnouncements]), 500);
-  });
-};
-
-const createAnnouncement = (announcement: Omit<Announcement, "id" | "publishedAt">): Promise<Announcement> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const newAnnouncement: Announcement = {
-        ...announcement,
-        id: Date.now(),
-        publishedAt: new Date().toISOString(),
-      };
-      resolve(newAnnouncement);
-    }, 500);
-  });
-};
-
-const updateAnnouncement = (id: number, announcement: Partial<Announcement>): Promise<Announcement> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const existingAnnouncement = mockAnnouncements.find(a => a.id === id);
-      const updatedAnnouncement = { ...existingAnnouncement, ...announcement } as Announcement;
-      resolve(updatedAnnouncement);
-    }, 500);
-  });
-};
-
-const deleteAnnouncement = (id: number): Promise<void> => {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(), 500);
-  });
-};
+export { type Announcement } from "../lib/api";
 
 export function useAnnouncements() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const api = useApiClient();
 
   useEffect(() => {
     loadAnnouncements();
-  }, []);
+  }, [api]);
 
   const loadAnnouncements = async () => {
     try {
       setLoading(true);
-      const data = await fetchAnnouncements();
-      setAnnouncements(data);
+      setError(null);
+      const backendAnnouncements = await api.announcements.getAll();
+      const transformedAnnouncements = backendAnnouncements.map(transformAnnouncement);
+      setAnnouncements(transformedAnnouncements);
     } catch (err) {
-      setError("Failed to load announcements");
+      const errorMessage = err instanceof ApiError 
+        ? err.message 
+        : "Failed to load announcements";
+      setError(errorMessage);
+      console.error("Error loading announcements:", err);
     } finally {
       setLoading(false);
     }
@@ -101,32 +35,46 @@ export function useAnnouncements() {
 
   const addAnnouncement = async (announcement: Omit<Announcement, "id" | "publishedAt">) => {
     try {
-      const newAnnouncement = await createAnnouncement(announcement);
+      setError(null);
+      const backendAnnouncement = await api.announcements.create(announcement);
+      const newAnnouncement = transformAnnouncement(backendAnnouncement);
       setAnnouncements(prev => [newAnnouncement, ...prev]);
       return newAnnouncement;
     } catch (err) {
-      setError("Failed to create announcement");
+      const errorMessage = err instanceof ApiError 
+        ? err.message 
+        : "Failed to create announcement";
+      setError(errorMessage);
       throw err;
     }
   };
 
   const editAnnouncement = async (id: number, announcement: Partial<Announcement>) => {
     try {
-      const updatedAnnouncement = await updateAnnouncement(id, announcement);
+      setError(null);
+      const backendAnnouncement = await api.announcements.update(id, announcement);
+      const updatedAnnouncement = transformAnnouncement(backendAnnouncement);
       setAnnouncements(prev => prev.map(a => a.id === id ? updatedAnnouncement : a));
       return updatedAnnouncement;
     } catch (err) {
-      setError("Failed to update announcement");
+      const errorMessage = err instanceof ApiError 
+        ? err.message 
+        : "Failed to update announcement";
+      setError(errorMessage);
       throw err;
     }
   };
 
   const removeAnnouncement = async (id: number) => {
     try {
-      await deleteAnnouncement(id);
+      setError(null);
+      await api.announcements.delete(id);
       setAnnouncements(prev => prev.filter(a => a.id !== id));
     } catch (err) {
-      setError("Failed to delete announcement");
+      const errorMessage = err instanceof ApiError 
+        ? err.message 
+        : "Failed to delete announcement";
+      setError(errorMessage);
       throw err;
     }
   };
@@ -145,4 +93,4 @@ export function useAnnouncements() {
     removeAnnouncement,
     refetch: loadAnnouncements,
   };
-} 
+}
