@@ -11,11 +11,14 @@ export interface Event {
 
 export interface Announcement {
   id: string;
-  title: string;
   content: string;
+  display_text?: string | null;
+  pinned: boolean;
+  is_draft: boolean;
+  discord_message_id?: string | null;
   author?: string;
   publishedAt: string;
-  isPinned?: boolean;
+  updatedAt: string;
 }
 
 export interface Officer {

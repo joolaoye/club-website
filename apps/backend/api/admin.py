@@ -21,10 +21,17 @@ class EventAdmin(admin.ModelAdmin):
 
 @admin.register(Announcement)
 class AnnouncementAdmin(admin.ModelAdmin):
-    list_display = ['title', 'pinned', 'created_by', 'created_at']
-    list_filter = ['pinned', 'created_at', 'created_by']
-    search_fields = ['title', 'content']
-    readonly_fields = ['created_at']
+    list_display = ['get_display_name', 'pinned', 'is_draft', 'created_at']
+    list_filter = ['pinned', 'is_draft', 'created_at']
+    search_fields = ['content']
+    readonly_fields = ['created_at', 'updated_at']
+    
+    def get_display_name(self, obj):
+        """Return display_text if available, otherwise truncated content."""
+        if obj.display_text:
+            return obj.display_text
+        return obj.content[:50] + "..." if len(obj.content) > 50 else obj.content
+    get_display_name.short_description = 'Display Name'
 
 
 @admin.register(Officer)

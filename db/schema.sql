@@ -24,11 +24,12 @@ CREATE TABLE events (
 -- 3. Announcements
 CREATE TABLE announcements (
     id SERIAL PRIMARY KEY,
-    title VARCHAR(200) NOT NULL,
-    content TEXT NOT NULL,
-    pinned BOOLEAN DEFAULT FALSE,
-    created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    content TEXT NOT NULL, display_text VARCHAR(200), 
+    pinned BOOLEAN NOT NULL DEFAULT FALSE,
+    is_draft BOOLEAN NOT NULL DEFAULT TRUE,
+    discord_message_id VARCHAR(64),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 4. Officers (subset of users shown publicly)

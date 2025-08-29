@@ -7,7 +7,21 @@ from api.serializers import AnnouncementSerializer, AnnouncementCreateSerializer
 
 @api_view(['GET'])
 def get_announcements(request):
-    """Get all announcements (public endpoint)."""
+    """Get published announcements (public endpoint)."""
+    try:
+        announcements = AnnouncementService.get_published_announcements()  # Changed this line
+        serializer = AnnouncementSerializer(announcements, many=True)
+        return Response(serializer.data)
+    except Exception as e:
+        return Response(
+            {'error': f'Failed to fetch announcements: {str(e)}'}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+# Add a new endpoint for officers hub
+@api_view(['GET'])
+def get_all_announcements_admin(request):
+    """Get all announcements including drafts (officers hub endpoint)."""
     try:
         announcements = AnnouncementService.get_all_announcements()
         serializer = AnnouncementSerializer(announcements, many=True)
@@ -19,19 +33,30 @@ def get_announcements(request):
         )
 
 
+@api_view(['GET'])
+def get_announcement_by_id(request, announcement_id):
+    """Get a single announcement by ID."""
+    try:
+        announcement = AnnouncementService.get_announcement_by_id(announcement_id)
+        if not announcement:
+            return Response({'error': 'Announcement not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = AnnouncementSerializer(announcement)
+        return Response(serializer.data)
+    except Exception as e:
+        return Response(
+            {'error': f'Failed to fetch announcement: {str(e)}'}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
 @api_view(['POST'])
 def create_announcement(request):
-    """Create a new announcement (officer-only)."""
-    if not request.user:
-        return Response({'error': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
-    
+    """Create a new announcement (officers hub - no auth required)."""
     serializer = AnnouncementCreateSerializer(data=request.data)
     if serializer.is_valid():
         try:
-            announcement = AnnouncementService.create_announcement(
-                request.user, 
-                serializer.validated_data
-            )
+            announcement = AnnouncementService.create_announcement(serializer.validated_data)
             response_serializer = AnnouncementSerializer(announcement)
             return Response(response_serializer.data, status=status.HTTP_201_CREATED)
         except Exception as e:
@@ -45,16 +70,16 @@ def create_announcement(request):
 
 @api_view(['PATCH'])
 def toggle_announcement_pin(request, announcement_id):
-    """Toggle pinned status of an announcement (officer-only)."""
-    if not request.user:
-        return Response({'error': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
-    
+    """Toggle pinned status of an announcement (officers hub - no auth required)."""
     try:
         announcement = AnnouncementService.get_announcement_by_id(announcement_id)
         if not announcement:
             return Response({'error': 'Announcement not found'}, status=status.HTTP_404_NOT_FOUND)
         
-        updated_announcement = AnnouncementService.toggle_pin_status(announcement)
+        # Get display_text from request data if provided
+        display_text = request.data.get('display_text')
+        
+        updated_announcement = AnnouncementService.toggle_pin_status(announcement, display_text)
         serializer = AnnouncementSerializer(updated_announcement)
         return Response(serializer.data)
     except Exception as e:
@@ -64,18 +89,22 @@ def toggle_announcement_pin(request, announcement_id):
         )
 
 
-@api_view(['PUT'])
+@api_view(['PUT', 'PATCH'])  # Accept both PUT and PATCH
 def update_announcement(request, announcement_id):
-    """Update an existing announcement (officer-only)."""
-    if not request.user:
-        return Response({'error': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
-    
+    """Update an existing announcement (officers hub - no auth required)."""
     try:
         announcement = AnnouncementService.get_announcement_by_id(announcement_id)
         if not announcement:
             return Response({'error': 'Announcement not found'}, status=status.HTTP_404_NOT_FOUND)
         
-        serializer = AnnouncementUpdateSerializer(data=request.data)
+        # Use partial=True for PATCH requests to allow partial updates
+        partial = request.method == 'PATCH'
+        serializer = AnnouncementUpdateSerializer(
+            announcement, 
+            data=request.data, 
+            partial=partial
+        )
+        
         if serializer.is_valid():
             updated_announcement = AnnouncementService.update_announcement(
                 announcement, 
@@ -94,17 +123,14 @@ def update_announcement(request, announcement_id):
 
 @api_view(['DELETE'])
 def delete_announcement(request, announcement_id):
-    """Delete an announcement (officer-only)."""
-    if not request.user:
-        return Response({'error': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
-    
+    """Delete an announcement (officers hub - no auth required)."""
     try:
         announcement = AnnouncementService.get_announcement_by_id(announcement_id)
         if not announcement:
             return Response({'error': 'Announcement not found'}, status=status.HTTP_404_NOT_FOUND)
         
         AnnouncementService.delete_announcement(announcement)
-        return Response({'message': 'Announcement deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)
     except Exception as e:
         return Response(
             {'error': f'Failed to delete announcement: {str(e)}'}, 

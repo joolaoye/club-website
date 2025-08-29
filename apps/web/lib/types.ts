@@ -18,15 +18,18 @@ export interface BackendEvent {
 
 export interface BackendAnnouncement {
   id: number;
-  title: string;
   content: string;
+  display_text?: string | null;
   pinned: boolean;
+  is_draft: boolean;
+  discord_message_id?: string | null;
   created_by: {
     id: number;
     full_name: string;
     email: string;
   } | null;
   created_at: string;
+  updated_at: string;
 }
 
 export interface BackendOfficer {
@@ -58,8 +61,8 @@ export interface Event {
 
 export interface Announcement {
   id: string;
-  title: string;
   content: string;
+  display_text?: string | null;
   isPinned: boolean;
   createdAt: string;
   updatedAt: string;
@@ -95,11 +98,11 @@ export function transformEvent(backendEvent: BackendEvent): Event {
 export function transformAnnouncement(backendAnnouncement: BackendAnnouncement): Announcement {
   return {
     id: backendAnnouncement.id.toString(),
-    title: backendAnnouncement.title,
     content: backendAnnouncement.content,
+    display_text: backendAnnouncement.display_text,
     isPinned: backendAnnouncement.pinned,
     createdAt: backendAnnouncement.created_at,
-    updatedAt: backendAnnouncement.created_at, // Backend doesn't have updated_at for announcements
+    updatedAt: backendAnnouncement.updated_at || backendAnnouncement.created_at,
   };
 }
 
