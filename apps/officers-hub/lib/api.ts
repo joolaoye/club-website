@@ -21,15 +21,13 @@ export interface BackendEvent {
 
 export interface BackendAnnouncement {
   id: number;
-  title: string;
   content: string;
+  display_text?: string | null;
   pinned: boolean;
-  created_by: {
-    id: number;
-    full_name: string;
-    role: string;
-  } | null;
+  is_draft: boolean;
+  discord_message_id?: string | null;
   created_at: string;
+  updated_at: string;
 }
 
 export interface BackendOfficer {
@@ -79,12 +77,13 @@ export interface EventRSVP {
 
 export interface Announcement {
   id: number;
-  title: string;
   content: string;
+  display_text?: string | null;
+  pinned: boolean;
+  is_draft: boolean;
   summary: string;
-  author: string;
   publishedAt: string;
-  status: "published" | "draft";
+  updatedAt: string;
 }
 
 export interface Officer {
@@ -161,7 +160,7 @@ export class ApiClient {
       ...restConfig,
     };
 
-    let lastError: Error;
+    let lastError: Error | undefined;
 
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
@@ -259,12 +258,13 @@ export function transformEvent(backendEvent: BackendEvent): Event {
 export function transformAnnouncement(backendAnnouncement: BackendAnnouncement): Announcement {
   return {
     id: backendAnnouncement.id,
-    title: backendAnnouncement.title,
     content: backendAnnouncement.content,
+    display_text: backendAnnouncement.display_text,
+    pinned: backendAnnouncement.pinned,
+    is_draft: backendAnnouncement.is_draft,
     summary: backendAnnouncement.content.substring(0, 150) + '...', // Generate summary
-    author: backendAnnouncement.created_by?.full_name || 'Unknown',
     publishedAt: backendAnnouncement.created_at,
-    status: 'published', // Assuming all fetched announcements are published
+    updatedAt: backendAnnouncement.updated_at,
   };
 }
 
@@ -330,26 +330,38 @@ export const api = {
   // Announcements
   announcements: {
     getAll: (getToken?: () => Promise<string | null>) => 
-      apiClient.get<BackendAnnouncement[]>('/announcements/', undefined, getToken),
+      apiClient.get<BackendAnnouncement[]>('/announcements/admin/', undefined, getToken),
     
     getById: (id: number, getToken?: () => Promise<string | null>) => 
       apiClient.get<BackendAnnouncement>(`/announcements/${id}/`, undefined, getToken),
     
-    create: (data: Omit<Announcement, 'id' | 'publishedAt'>, getToken?: () => Promise<string | null>) => 
-      apiClient.post<BackendAnnouncement>('/announcements/', {
-        title: data.title,
+    create: (data: Omit<Announcement, 'id' | 'publishedAt' | 'updatedAt' | 'summary' | 'author'>, getToken?: () => Promise<string | null>) => 
+      apiClient.post<BackendAnnouncement>('/announcements/create/', {  // Changed from '/announcements/' to '/announcements/create/'
         content: data.content,
-        pinned: false, // Default to not pinned
+        display_text: data.display_text,
+        pinned: data.pinned || false,
+        is_draft: data.is_draft !== false, // Default to draft if not specified
       }, undefined, getToken),
     
     update: (id: number, data: Partial<Announcement>, getToken?: () => Promise<string | null>) => 
-      apiClient.patch<BackendAnnouncement>(`/announcements/${id}/`, {
-        ...(data.title && { title: data.title }),
-        ...(data.content && { content: data.content }),
-      }, undefined, getToken),
+      apiClient.patch<BackendAnnouncement>(`/announcements/${id}/update/`, {  // Changed from put to patch
+        ...(data.content !== undefined && { content: data.content }),
+        ...(data.display_text !== undefined && { display_text: data.display_text }),
+        ...(data.pinned !== undefined && { pinned: data.pinned }),
+        ...(data.is_draft !== undefined && { is_draft: data.is_draft })
+      }, undefined, getToken).then(transformAnnouncement),
     
     delete: (id: number, getToken?: () => Promise<string | null>) => 
-      apiClient.delete(`/announcements/${id}/`, undefined, getToken),
+      apiClient.delete(`/announcements/${id}/delete/`, undefined, getToken),  // Keep existing delete endpoint
+    
+    pin: (id: number, displayText: string, getToken?: () => Promise<string | null>) => 
+      apiClient.patch<BackendAnnouncement>(`/announcements/${id}/pin/`, {
+        display_text: displayText,
+        pinned: true
+      }, undefined, getToken),
+    
+    unpin: (id: number, getToken?: () => Promise<string | null>) => 
+      apiClient.patch<BackendAnnouncement>(`/announcements/${id}/pin/`, {}, undefined, getToken),
   },
 
   // Officers
@@ -410,9 +422,11 @@ export function useApiClient() {
       announcements: {
         getAll: useCallback(() => api.announcements.getAll(getAuthToken), [getAuthToken]),
         getById: useCallback((id: number) => api.announcements.getById(id, getAuthToken), [getAuthToken]),
-        create: useCallback((data: Omit<Announcement, 'id' | 'publishedAt'>) => api.announcements.create(data, getAuthToken), [getAuthToken]),
+        create: useCallback((data: Omit<Announcement, 'id' | 'publishedAt' | 'updatedAt' | 'summary' | 'author'>) => api.announcements.create(data, getAuthToken), [getAuthToken]),
         update: useCallback((id: number, data: Partial<Announcement>) => api.announcements.update(id, data, getAuthToken), [getAuthToken]),
         delete: useCallback((id: number) => api.announcements.delete(id, getAuthToken), [getAuthToken]),
+        pin: useCallback((id: number, displayText: string) => api.announcements.pin(id, displayText, getAuthToken), [getAuthToken]),
+        unpin: useCallback((id: number) => api.announcements.unpin(id, getAuthToken), [getAuthToken]),
       },
       officers: {
         getAll: useCallback(() => api.officers.getAll(getAuthToken), [getAuthToken]),

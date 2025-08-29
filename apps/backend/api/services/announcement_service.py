@@ -3,40 +3,42 @@ from api.models import Announcement
 
 
 class AnnouncementService:
-    """
-    Service layer for Announcement operations.
-    All business logic for announcements should be implemented here.
-    """
+    """Service class for announcement operations."""
     
     @staticmethod
     def get_all_announcements():
         """Get all announcements ordered by pinned status and creation date."""
-        return Announcement.objects.all().select_related('created_by')
+        return Announcement.objects.all()
+
+    @staticmethod
+    def get_published_announcements():
+        """Get only published announcements for public consumption."""
+        return Announcement.objects.filter(is_draft=False).order_by('-pinned', '-created_at')
     
     @staticmethod
     def get_pinned_announcements():
         """Get only pinned announcements."""
         return Announcement.objects.filter(
             pinned=True
-        ).select_related('created_by').order_by('-created_at')
+        ).order_by('-created_at')
     
     @staticmethod
     def get_announcement_by_id(announcement_id):
         """Get a specific announcement by ID."""
         try:
-            return Announcement.objects.select_related('created_by').get(id=announcement_id)
+            return Announcement.objects.get(id=announcement_id)
         except Announcement.DoesNotExist:
             return None
     
     @staticmethod
     @transaction.atomic
-    def create_announcement(user, announcement_data):
+    def create_announcement(announcement_data):
         """Create a new announcement."""
         announcement = Announcement.objects.create(
-            title=announcement_data['title'],
             content=announcement_data['content'],
+            display_text=announcement_data.get('display_text'),
             pinned=announcement_data.get('pinned', False),
-            created_by=user
+            is_draft=announcement_data.get('is_draft', True)
         )
         return announcement
     
@@ -44,10 +46,10 @@ class AnnouncementService:
     @transaction.atomic
     def update_announcement(announcement, announcement_data):
         """Update an existing announcement."""
-        allowed_fields = ['title', 'content', 'pinned']
+        allowed_fields = ['content', 'display_text', 'pinned', 'is_draft']
         
         for field, value in announcement_data.items():
-            if field in allowed_fields and value is not None:
+            if field in allowed_fields:
                 setattr(announcement, field, value)
         
         announcement.save()
@@ -55,9 +57,19 @@ class AnnouncementService:
     
     @staticmethod
     @transaction.atomic
-    def toggle_pin_status(announcement):
+    def toggle_pin_status(announcement, display_text=None):
         """Toggle the pinned status of an announcement."""
-        announcement.pinned = not announcement.pinned
+        # Check if we're pinning or unpinning based on request data
+        # If display_text is provided, we're pinning; if empty/None, we're unpinning
+        if display_text:
+            # Pinning the announcement
+            announcement.pinned = True
+            announcement.display_text = display_text
+        else:
+            # Unpinning the announcement
+            announcement.pinned = False
+            announcement.display_text = None
+            
         announcement.save()
         return announcement
     
@@ -65,5 +77,4 @@ class AnnouncementService:
     @transaction.atomic
     def delete_announcement(announcement):
         """Delete an announcement."""
-        announcement.delete()
-        return True 
+        announcement.delete() 

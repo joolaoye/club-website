@@ -17,25 +17,37 @@ class ClerkAuthMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        # Skip auth for public endpoints
-        public_paths = [
+        # Skip auth for public web app endpoints (GET requests only)
+        public_read_paths = [
             '/api/events',
-            '/api/announcements',
+            '/api/announcements', 
             '/api/officers',
             '/api/highlights',
         ]
         
-        # Check if this is a public endpoint
-        is_public = any(request.path.startswith(path) for path in public_paths)
+        # Skip auth for ALL officers-hub endpoints (Clerk handles auth at frontend)
+        officers_hub_paths = [
+            '/api/announcements',
+            '/api/events', 
+            '/api/officers',
+            '/api/highlights',
+        ]
+        
+        # Check request type
+        is_public_read = any(request.path.startswith(path) for path in public_read_paths)
+        is_officers_hub = any(request.path.startswith(path) for path in officers_hub_paths)
         is_rsvp = '/rsvp' in request.path
         is_get_request = request.method == 'GET'
         
-        # Allow public access for GET requests to listed endpoints and RSVP posts
-        if (is_public and is_get_request) or is_rsvp:
+        # Allow access for:
+        # 1. GET requests to public endpoints (web app)
+        # 2. All RSVP operations (public)
+        # 3. ALL officers-hub operations (frontend Clerk auth handles access)
+        if (is_public_read and is_get_request) or is_rsvp or is_officers_hub:
             request.user = None
             return self.get_response(request)
 
-        # Extract Authorization header
+        # For any other endpoints, require authentication
         auth_header = request.headers.get('Authorization')
         if not auth_header or not auth_header.startswith('Bearer '):
             return JsonResponse({'error': 'Authorization header required'}, status=401)
@@ -48,7 +60,7 @@ class ClerkAuthMiddleware:
             if not user_data:
                 return JsonResponse({'error': 'Invalid token'}, status=401)
             
-            clerk_user_id = user_data.get('user_id')  # Clerk user ID
+            clerk_user_id = user_data.get('user_id')
             email = user_data.get('email')
             first_name = user_data.get('first_name', '')
             last_name = user_data.get('last_name', '')
@@ -60,7 +72,7 @@ class ClerkAuthMiddleware:
                 defaults={
                     'email': email or '',
                     'full_name': full_name or email or 'Unknown User',
-                    'role': 'Officer',  # Default role
+                    'role': 'Officer',
                     'is_officer': True,
                 }
             )
@@ -79,21 +91,41 @@ class ClerkAuthMiddleware:
 
     def _verify_clerk_token(self, token):
         """
-        Verify token with Clerk API.
+        Verify JWT token with Clerk's API.
         Returns user data if valid, None if invalid.
         """
         try:
-            import jwt
+            # Use Clerk's session verification endpoint
+            url = f"https://api.clerk.dev/v1/sessions/verify"
+            headers = {
+                'Authorization': f'Bearer {settings.CLERK_SECRET_KEY}',
+                'Content-Type': 'application/json',
+            }
             
-            # For development, we'll decode without verification
-            # In production, you should verify with Clerk's public key
-            try:
-                # Decode JWT without verification (for development)
-                # In production, use: jwt.decode(token, key, algorithms=["RS256"])
-                decoded = jwt.decode(token, options={"verify_signature": False})
-                return decoded
-            except jwt.InvalidTokenError:
-                return None
+            # Send token for verification
+            response = requests.post(url, headers=headers, json={'token': token}, timeout=10)
+            
+            if response.status_code == 200:
+                session_data = response.json()
+                user_id = session_data.get('user_id')
                 
-        except Exception:
+                if user_id:
+                    # Get user details from Clerk
+                    user_url = f"https://api.clerk.dev/v1/users/{user_id}"
+                    user_response = requests.get(user_url, headers=headers, timeout=10)
+                    
+                    if user_response.status_code == 200:
+                        user_data = user_response.json()
+                        return {
+                            'user_id': user_id,
+                            'email': user_data.get('email_addresses', [{}])[0].get('email_address'),
+                            'first_name': user_data.get('first_name'),
+                            'last_name': user_data.get('last_name'),
+                            'full_name': f"{user_data.get('first_name', '')} {user_data.get('last_name', '')}".strip(),
+                        }
+            
+            return None
+            
+        except Exception as e:
+            print(f"Clerk token verification failed: {e}")
             return None 

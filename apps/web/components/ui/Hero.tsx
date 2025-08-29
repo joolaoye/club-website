@@ -4,9 +4,24 @@ import { Button } from "@workspace/ui/components/button";
 import { HoverBorderGradient } from "@workspace/ui/components/hover-border-gradient";
 import { motion } from "motion/react";
 import { LampContainer } from "@workspace/ui/components/lamp";
+import { useAnnouncements } from "@/hooks/useAnnouncements";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export function Hero() {
+  const { pinnedAnnouncement } = useAnnouncements();
+  const router = useRouter();
+
+  const handleAnnouncementClick = () => {
+    if (pinnedAnnouncement) {
+      // Navigate to announcements page with a query parameter to auto-open the preview
+      router.push(`/announcements?preview=${pinnedAnnouncement.id}`);
+    }
+  };
+
+  console.log('Pinned announcement:', pinnedAnnouncement);
+  console.log('Pinned display_text:', pinnedAnnouncement?.display_text);
+
   return (
     <LampContainer>
       <motion.div
@@ -21,16 +36,19 @@ export function Hero() {
       >
         {/* Hero Content Container */}
         <div className="mx-auto max-w-4xl text-center p-6 sm:p-8 md:p-10 lg:p-12">
-          {/* Announcement Banner */}
-          <div className="flex justify-center mb-4 md:mb-5 lg:mb-6">
-            <HoverBorderGradient
-              as="div"
-              containerClassName="rounded-full"
-              className="bg-background/80 backdrop-blur text-foreground px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-medium rounded-full border border-border/20"
-            >
-              🎉 Fall 2025 registration is now open!
-            </HoverBorderGradient>
-          </div>
+          {/* Announcement Banner - Only show if there's a pinned announcement with display_text */}
+          {pinnedAnnouncement?.display_text && (
+            <div className="flex justify-center mb-4 md:mb-5 lg:mb-6">
+              <HoverBorderGradient
+                as="button"
+                containerClassName="rounded-full"
+                className="bg-background/80 backdrop-blur text-foreground px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-medium rounded-full border border-border/20 cursor-pointer hover:bg-background/90 transition-colors"
+                onClick={handleAnnouncementClick}
+              >
+                📌 {pinnedAnnouncement.display_text}
+              </HoverBorderGradient>
+            </div>
+          )}
           
           {/* Title */}
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-3 md:mb-4 lg:mb-5 text-foreground">
