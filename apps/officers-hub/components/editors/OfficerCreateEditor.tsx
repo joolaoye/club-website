@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
 import { Label } from "@workspace/ui/components/label";
@@ -52,13 +52,13 @@ export default function OfficerCreateEditor() {
   const { setView, goBack } = useNavigation();
 
   // Track changes
-  const handleFieldChange = (field: keyof OfficerFormData, value: string | number) => {
+  const handleFieldChange = useCallback((field: keyof OfficerFormData, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setHasUnsavedChanges(true);
-  };
+  }, []);
 
   // Handle file selection
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       if (!file.type.startsWith('image/')) {
@@ -82,13 +82,13 @@ export default function OfficerCreateEditor() {
       };
       reader.readAsDataURL(file);
     }
-  };
+  }, []);
 
-  const handleImageUpload = () => {
+  const handleImageUpload = useCallback(() => {
     fileInputRef.current?.click();
-  };
+  }, []);
 
-  const handleRemoveImage = () => {
+  const handleRemoveImage = useCallback(() => {
     setSelectedFile(null);
     setPreviewUrl("");
     setFormData(prev => ({ ...prev, image_url: "" }));
@@ -96,9 +96,9 @@ export default function OfficerCreateEditor() {
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
-  };
+  }, []);
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     if (!formData.name.trim()) {
       toast.error('Name is required');
       return;
@@ -132,24 +132,24 @@ export default function OfficerCreateEditor() {
     } finally {
       setIsSaving(false);
     }
-  };
+  }, [formData, api.officers, setView]);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     if (hasUnsavedChanges) {
       setShowUnsavedDialog(true);
     } else {
       goBack();
     }
-  };
+  }, [hasUnsavedChanges, goBack]);
 
-  const handleConfirmLeave = () => {
+  const handleConfirmLeave = useCallback(() => {
     setShowUnsavedDialog(false);
     goBack();
-  };
+  }, [goBack]);
 
-  const handleCancelLeave = () => {
+  const handleCancelLeave = useCallback(() => {
     setShowUnsavedDialog(false);
-  };
+  }, []);
 
   return (
     <>

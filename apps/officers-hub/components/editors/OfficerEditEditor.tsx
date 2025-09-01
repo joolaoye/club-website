@@ -114,7 +114,7 @@ export default function OfficerEditEditor({ officerId }: OfficerEditEditorProps)
   }, [loadOfficer]); // Only depend on the memoized callback
 
   // Track changes
-  const handleFieldChange = (field: keyof OfficerFormData, value: string | number) => {
+  const handleFieldChange = useCallback((field: keyof OfficerFormData, value: string | number) => {
     const newFormData = { ...formData, [field]: value };
     setFormData(newFormData);
     
@@ -123,10 +123,10 @@ export default function OfficerEditEditor({ officerId }: OfficerEditEditorProps)
       newFormData[key as keyof OfficerFormData] !== originalFormData[key as keyof OfficerFormData]
     );
     setHasUnsavedChanges(hasChanges);
-  };
+  }, [formData, originalFormData]);
 
   // Handle file selection
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       if (!file.type.startsWith('image/')) {
@@ -150,13 +150,13 @@ export default function OfficerEditEditor({ officerId }: OfficerEditEditorProps)
       };
       reader.readAsDataURL(file);
     }
-  };
+  }, []);
 
-  const handleImageUpload = () => {
+  const handleImageUpload = useCallback(() => {
     fileInputRef.current?.click();
-  };
+  }, []);
 
-  const handleRemoveImage = () => {
+  const handleRemoveImage = useCallback(() => {
     setSelectedFile(null);
     setPreviewUrl("");
     setFormData(prev => ({ ...prev, image_url: "" }));
@@ -164,9 +164,9 @@ export default function OfficerEditEditor({ officerId }: OfficerEditEditorProps)
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
-  };
+  }, []);
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     if (!formData.name.trim()) {
       toast.error('Name is required');
       return;
@@ -203,9 +203,9 @@ export default function OfficerEditEditor({ officerId }: OfficerEditEditorProps)
     } finally {
       setIsSaving(false);
     }
-  };
+  }, [formData, officerId, api.officers, setView]);
 
-  const handleDelete = async () => {
+  const handleDelete = useCallback(async () => {
     try {
       setIsDeleting(true);
       await api.officers.delete(officerId);
@@ -219,24 +219,24 @@ export default function OfficerEditEditor({ officerId }: OfficerEditEditorProps)
       setIsDeleting(false);
       setShowDeleteDialog(false);
     }
-  };
+  }, [officerId, api.officers, setView]);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     if (hasUnsavedChanges) {
       setShowUnsavedDialog(true);
     } else {
       goBack();
     }
-  };
+  }, [hasUnsavedChanges, goBack]);
 
-  const handleConfirmLeave = () => {
+  const handleConfirmLeave = useCallback(() => {
     setShowUnsavedDialog(false);
     goBack();
-  };
+  }, [goBack]);
 
-  const handleCancelLeave = () => {
+  const handleCancelLeave = useCallback(() => {
     setShowUnsavedDialog(false);
-  };
+  }, []);
 
   if (isLoading) {
     return (

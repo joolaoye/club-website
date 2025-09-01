@@ -3,6 +3,39 @@ from api.models import Officer
 from .user_serializer import PublicUserSerializer
 
 
+def validate_url_format(value, url_type="URL", allow_data_urls=False):
+    """
+    Reusable URL validation function.
+    
+    Args:
+        value: The URL value to validate
+        url_type: Type of URL for error messages (e.g., "Image URL", "LinkedIn URL")
+        allow_data_urls: Whether to allow base64 data URLs (for images)
+    
+    Returns:
+        The validated URL value
+    
+    Raises:
+        serializers.ValidationError: If URL format is invalid
+    """
+    if not value:
+        return value
+    
+    # Handle empty strings
+    if value.strip() == '':
+        return ''
+    
+    # Allow base64 data URLs if specified (mainly for images)
+    if allow_data_urls and value.startswith('data:image/'):
+        return value
+    
+    # Validate HTTP/HTTPS URLs
+    if not (value.startswith('http://') or value.startswith('https://')):
+        raise serializers.ValidationError(f"{url_type} must start with http:// or https://")
+    
+    return value
+
+
 class OfficerSerializer(serializers.ModelSerializer):
     """Serializer for Officer model."""
     
@@ -26,7 +59,7 @@ class OfficerSerializer(serializers.ModelSerializer):
             'order_index'
         ]
         read_only_fields = ['id', 'user', 'full_name', 'user_email']
-    
+
     def to_representation(self, instance):
         """Custom representation to handle null user fields."""
         data = super().to_representation(instance)
@@ -46,16 +79,12 @@ class OfficerSerializer(serializers.ModelSerializer):
         return value.strip()
     
     def validate_image_url(self, value):
-        """Validate image URL format."""
-        if value and not (value.startswith('http://') or value.startswith('https://')):
-            raise serializers.ValidationError("Image URL must start with http:// or https://")
-        return value
+        """Validate image URL format. Kept for backward compatibility and potential future enhancements."""
+        return validate_url_format(value, "Image URL")
     
     def validate_linkedin_url(self, value):
-        """Validate LinkedIn URL format."""
-        if value and not (value.startswith('http://') or value.startswith('https://')):
-            raise serializers.ValidationError("LinkedIn URL must start with http:// or https://")
-        return value
+        """Validate LinkedIn URL format. Kept for backward compatibility and potential future enhancements."""
+        return validate_url_format(value, "LinkedIn URL")
 
 
 class OfficerCreateSerializer(serializers.ModelSerializer):
@@ -78,26 +107,12 @@ class OfficerCreateSerializer(serializers.ModelSerializer):
         return value.strip()
     
     def validate_image_url(self, value):
-        """Validate image URL format - allow base64 data URLs and regular URLs."""
-        if value:
-            # Allow base64 data URLs for uploaded images
-            if value.startswith('data:image/'):
-                return value
-            # Allow regular HTTP/HTTPS URLs
-            elif value.startswith(('http://', 'https://')):
-                return value
-            # Allow empty string
-            elif value.strip() == '':
-                return ''
-            else:
-                raise serializers.ValidationError("Image must be a valid HTTP/HTTPS URL or base64 data URL")
-        return value
+        """Validate image URL format. Supports base64 data URLs and regular URLs."""
+        return validate_url_format(value, "Image", allow_data_urls=True)
     
     def validate_linkedin_url(self, value):
-        """Validate LinkedIn URL format."""
-        if value and value.strip() and not (value.startswith('http://') or value.startswith('https://')):
-            raise serializers.ValidationError("LinkedIn URL must start with http:// or https://")
-        return value
+        """Validate LinkedIn URL format. Kept for backward compatibility and potential future enhancements."""
+        return validate_url_format(value, "LinkedIn URL")
 
 
 class OfficerUpdateSerializer(serializers.ModelSerializer):
@@ -114,16 +129,12 @@ class OfficerUpdateSerializer(serializers.ModelSerializer):
         return value.strip() if value else value
     
     def validate_image_url(self, value):
-        """Validate image URL format."""
-        if value and not (value.startswith('http://') or value.startswith('https://')):
-            raise serializers.ValidationError("Image URL must start with http:// or https://")
-        return value
+        """Validate image URL format. Kept for backward compatibility and potential future enhancements."""
+        return validate_url_format(value, "Image URL")
     
     def validate_linkedin_url(self, value):
-        """Validate LinkedIn URL format."""
-        if value and not (value.startswith('http://') or value.startswith('https://')):
-            raise serializers.ValidationError("LinkedIn URL must start with http:// or https://")
-        return value
+        """Validate LinkedIn URL format. Kept for backward compatibility and potential future enhancements."""
+        return validate_url_format(value, "LinkedIn URL")
 
 
 class OfficerReorderSerializer(serializers.Serializer):
