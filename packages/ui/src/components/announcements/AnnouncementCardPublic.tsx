@@ -1,8 +1,8 @@
 "use client";
 
 import React from 'react';
-import { AnnouncementCardBase } from '@workspace/ui/components/announcements/AnnouncementCardBase';
-import { useAnnouncementPreview } from '@workspace/ui/components/announcements/AnnouncementPreviewContext';
+import { AnnouncementCardBase } from '@club-website/ui/components/announcements/AnnouncementCardBase';
+import { useAnnouncementPreview } from '@club-website/ui/components/announcements/AnnouncementPreviewContext';
 
 interface Announcement {
   id: string;

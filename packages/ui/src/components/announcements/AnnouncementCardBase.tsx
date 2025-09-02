@@ -1,10 +1,10 @@
 "use client";
 
 import React from 'react';
-import { Card } from "@workspace/ui/components/card";
-import { formatDate } from '@workspace/ui/lib/utils';
+import { Card } from "@club-website/ui/components/card";
+import { formatDate } from '@club-website/ui/lib/utils';
 import { Calendar, Pin } from 'lucide-react';
-import { useAnnouncementPreview } from '@workspace/ui/components/announcements/AnnouncementPreviewContext';
+import { useAnnouncementPreview } from '@club-website/ui/components/announcements/AnnouncementPreviewContext';
 
 interface Announcement {
   id: string;

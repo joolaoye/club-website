@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
-import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card";
-import { Button } from "@workspace/ui/components/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@club-website/ui/components/card";
+import { Button } from "@club-website/ui/components/button";
 import { Calendar, Megaphone, Users, TrendingUp, Plus, Eye, Edit } from "lucide-react";
-import { useApiClient } from "@/lib/api";
+import { useApiClient, type Event, type Announcement, type Officer } from "@/lib/api";
 import { useNavigation } from "@/components/navigation/NavigationContext";
 import { toast } from "sonner";
 
@@ -61,15 +61,15 @@ export default function DashboardView() {
 
       // Calculate stats
       const now = new Date();
-      const upcomingEvents = events.filter(event => 
-        new Date(event.event_date) > now
+      const upcomingEvents = events.filter((event: Event) => 
+        event.scheduledAt > now
       ).length;
 
-      const publishedAnnouncements = announcements.filter(a => !a.is_draft).length;
-      const draftAnnouncements = announcements.filter(a => a.is_draft).length;
+      const publishedAnnouncements = announcements.filter((a: Announcement) => !a.isDraft).length;
+      const draftAnnouncements = announcements.filter((a: Announcement) => a.isDraft).length;
 
       // Calculate total RSVPs
-      const totalRSVPs = events.reduce((sum, event) => sum + (event.rsvp_count || 0), 0);
+      const totalRSVPs = events.reduce((sum: number, event: Event) => sum + (event.rsvpCount || 0), 0);
 
       setStats({
         upcomingEvents,
@@ -85,31 +85,31 @@ export default function DashboardView() {
 
       // Recent events
       events
-        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        .sort((a: Event, b: Event) => b.createdAt.getTime() - a.createdAt.getTime())
         .slice(0, 2)
-        .forEach(event => {
+        .forEach((event: Event) => {
           activities.push({
             id: `event-${event.id}`,
             type: 'event',
             title: `New event "${event.title}" created`,
-            description: new Date(event.created_at).toLocaleDateString(),
-            timestamp: event.created_at,
+            description: event.createdAt.toLocaleDateString(),
+            timestamp: event.createdAt.toISOString(),
             color: 'bg-blue-500'
           });
         });
 
       // Recent announcements
       announcements
-        .filter(a => !a.is_draft)
-        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        .filter((a: Announcement) => !a.isDraft)
+        .sort((a: Announcement, b: Announcement) => b.createdAt.getTime() - a.createdAt.getTime())
         .slice(0, 2)
-        .forEach(announcement => {
+        .forEach((announcement: Announcement) => {
           activities.push({
             id: `announcement-${announcement.id}`,
             type: 'announcement',
-            title: `New announcement "${announcement.display_text || 'Untitled'}" published`,
-            description: new Date(announcement.created_at).toLocaleDateString(),
-            timestamp: announcement.created_at,
+            title: `New announcement "${announcement.displayText || 'Untitled'}" published`,
+            description: announcement.createdAt.toLocaleDateString(),
+            timestamp: announcement.createdAt.toISOString(),
             color: 'bg-green-500'
           });
         });

@@ -6,7 +6,7 @@ A modern, full-stack web platform for university Computer Science Club managemen
 
 This is a **monorepo** containing three main applications:
 
-- **`apps/web/`** - Public-facing Next.js website
+- **`apps/public-website/`** - Public-facing Next.js website
 - **`apps/officers-hub/`** - Officer management dashboard (Clerk-authenticated)
 - **`apps/backend/`** - Django REST API backend
 - **`packages/ui/`** - Shared UI components library
@@ -24,66 +24,67 @@ This is a **monorepo** containing three main applications:
 
 ### Prerequisites
 
-- **Node.js** >= 20
-- **Python** >= 3.11
-- **PostgreSQL** >= 14
+- **Docker Desktop** (includes Docker and Docker Compose)
+- **Node.js** >= 20 (for local development outside Docker)
 - **pnpm** (package manager)
 
-### 1. Clone & Install
+### 1. Clone & Setup
 
 ```bash
 git clone <repository-url>
-cd cs-club-website
-pnpm install
+cd club-website
+
+# Install dependencies and setup database
+pnpm setup
+
+# Optional: Create .env file only if you need to override defaults
+# cp env.example .env
 ```
 
-### 2. Backend Setup
+### 2. Run the Application
 
 ```bash
-cd apps/backend
-
-# Install Python dependencies
-pip install -r requirements.txt
-
-# Create environment file
-cp .env.example .env
-# Edit .env with your database and Clerk credentials
-
-# Setup database
-python manage.py makemigrations
-python manage.py migrate
-python manage.py createsuperuser  # Optional
-
-# Start backend server
-python manage.py runserver 8000
-```
-
-### 3. Frontend Setup
-
-#### Public Website (apps/web)
-```bash
-cd apps/web
-pnpm dev  # Runs on http://localhost:3000
-```
-
-#### Officers Hub (apps/officers-hub)
-```bash
-cd apps/officers-hub
-
-# Create environment file
-touch .env.local
-# Add your Clerk keys:
-# NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
-# CLERK_SECRET_KEY=sk_test_...
-
-pnpm dev  # Runs on http://localhost:3001
-```
-
-### 4. Development Mode (All Apps)
-
-```bash
-# From project root - starts all apps simultaneously
+# Start all services (frontend, backend, database)
 pnpm dev
+
+# Or run in detached mode
+pnpm dev:detached
+
+# View logs
+pnpm logs
+```
+
+### 3. Stop Services
+
+```bash
+# Stop all services
+pnpm cleanup
+
+# Stop and remove volumes (deletes database data)
+pnpm cleanup:volumes
+```
+
+### 🌐 Access Points
+
+Once running, access the applications at:
+- **Public Website**: http://localhost:3000
+- **Officers Hub**: http://localhost:3001 (requires Clerk authentication)
+- **Django API**: http://localhost:8000/api
+
+### 🛠️ Useful Commands
+
+```bash
+# Database operations
+pnpm db:migrate          # Run database migrations
+pnpm db:makemigrations   # Create new migrations
+pnpm db:shell            # Access PostgreSQL shell
+
+# Django operations
+pnpm api:shell           # Access Django shell
+
+# Development
+pnpm logs                # View all service logs
+pnpm logs api            # View specific service logs
 ```
 
 ## 📁 Project Structure
@@ -91,7 +92,7 @@ pnpm dev
 ```
 cs-club-website/
 ├── apps/
-│   ├── web/                    # Public Next.js website
+│   ├── public-website/        # Public Next.js website
 │   │   ├── app/               # App router pages
 │   │   ├── components/        # React components
 │   │   ├── hooks/            # Custom React hooks
@@ -119,37 +120,25 @@ cs-club-website/
 
 ## 🔧 Environment Configuration
 
-### Backend (.env)
-```env
-# Django
-DJANGO_SECRET_KEY=your-secret-key-here
-DEBUG=True
-ALLOWED_HOSTS=localhost,127.0.0.1
+**No configuration required!** The project includes sensible defaults for all environment variables in `docker-compose.yml`, including test Clerk authentication keys.
 
-# Database
-DB_NAME=cs_club
-DB_USER=postgres
-DB_PASSWORD=your-password
-DB_HOST=localhost
-DB_PORT=5432
+### Optional: Custom Configuration
 
-# Clerk Auth
-CLERK_PUBLISHABLE_KEY=pk_test_...
-CLERK_SECRET_KEY=sk_test_...
+Only create a `.env` file if you need to override the defaults (e.g., using your own Clerk keys):
 
-# CORS
-CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3001
+```bash
+# Copy the example file
+cp env.example .env
+
+# Edit with your custom values
+# Most commonly changed: Clerk authentication keys
 ```
 
-### Officers Hub (.env.local)
-```env
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
-CLERK_SECRET_KEY=sk_test_...
-```
+See `env.example` for all available configuration options. The most common customization is adding your own Clerk keys from https://dashboard.clerk.com.
 
 ## 🎯 Features
 
-### Public Website (`apps/web`)
+### Public Website (`apps/public-website`)
 - ✅ **Events**: Browse upcoming CS Club events
 - ✅ **Announcements**: Latest club news and updates
 - ✅ **Officers**: Meet the current leadership team
@@ -192,5 +181,52 @@ CLERK_SECRET_KEY=sk_test_...
 - **Responsive Design**: Mobile-first approach with Tailwind CSS
 - **Accessibility**: Follow WCAG guidelines
 - **Performance**: Optimize images, lazy load components, minimize bundle size
+
+## 🤝 Contributing
+
+We welcome contributions from everyone! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
+
+Please read our [Contributing Guide](CONTRIBUTING.md) for detailed instructions on how to get started.
+
+### Quick Start for Contributors
+
+```bash
+# Fork and clone the repository
+git clone https://github.com/YOUR_USERNAME/club-website.git
+cd club-website
+
+# Set up the development environment
+pnpm setup
+
+# Start developing
+pnpm dev
+```
+
+### Looking for something to work on?
+
+Check out our [open issues](https://github.com/your-org/club-website/issues), especially those tagged with:
+- `good first issue` - Perfect for beginners
+- `help wanted` - We need your help!
+- `documentation` - Help improve our docs
+
+## ✨ Contributors
+
+Thanks to all our amazing contributors! 🎉
+
+<a href="https://github.com/Computer-Science-Club-SCSU-University/club-website/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Computer-Science-Club-SCSU-University/club-website" />
+</a>
+
+Made with [contrib.rocks](https://contrib.rocks).
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- CS Club members and officers for their continuous support
+- Our university for providing resources and guidance
+- The open-source community for amazing tools and libraries
 
 ---

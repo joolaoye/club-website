@@ -1,10 +1,15 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useApiClient, type BackendOfficer, ApiError } from "../lib/api";
+import { useApiClient, type Officer, ApiError } from "../lib/api";
+import { 
+  toCreateOfficerRequest, 
+  toUpdateOfficerRequest,
+  toOfficerUIProps 
+} from "../lib/adapters";
 
 export function useOfficers() {
-  const [officers, setOfficers] = useState<BackendOfficer[]>([]);
+  const [officers, setOfficers] = useState<Officer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const api = useApiClient();
@@ -13,8 +18,8 @@ export function useOfficers() {
     try {
       setLoading(true);
       setError(null);
-      const backendOfficers = await api.officers.getAll();
-      setOfficers(backendOfficers);
+      const officers = await api.officers.getAll();
+      setOfficers(officers);
     } catch (err) {
       const errorMessage = err instanceof ApiError 
         ? err.message 
@@ -24,18 +29,27 @@ export function useOfficers() {
     } finally {
       setLoading(false);
     }
-  }, [api.officers.getAll]);
+  }, [api]);
 
   useEffect(() => {
     loadOfficers();
   }, [loadOfficers]);
 
-  const addOfficer = useCallback(async (officerData: any) => {
+  const addOfficer = useCallback(async (officerData: {
+    name: string;
+    position: string;
+    bio?: string;
+    imageUrl?: string;
+    linkedinUrl?: string;
+    email?: string;
+    orderIndex?: number;
+  }) => {
     try {
       setError(null);
-      const backendOfficer = await api.officers.create(officerData);
-      setOfficers(prev => [...prev, backendOfficer]);
-      return backendOfficer;
+      const request = toCreateOfficerRequest(officerData);
+      const officer = await api.officers.create(request);
+      setOfficers(prev => [...prev, officer]);
+      return officer;
     } catch (err) {
       const errorMessage = err instanceof ApiError 
         ? err.message 
@@ -43,14 +57,23 @@ export function useOfficers() {
       setError(errorMessage);
       throw err;
     }
-  }, [api.officers.create]);
+  }, [api]);
 
-  const editOfficer = useCallback(async (id: number, officerData: any) => {
+  const editOfficer = useCallback(async (id: string, officerData: Partial<{
+    name: string;
+    position: string;
+    bio?: string;
+    imageUrl?: string;
+    linkedinUrl?: string;
+    email?: string;
+    orderIndex?: number;
+  }>) => {
     try {
       setError(null);
-      const backendOfficer = await api.officers.update(id, officerData);
-      setOfficers(prev => prev.map(o => o.id === id ? backendOfficer : o));
-      return backendOfficer;
+      const request = toUpdateOfficerRequest(officerData);
+      const officer = await api.officers.update(id, request);
+      setOfficers(prev => prev.map(o => o.id === id ? officer : o));
+      return officer;
     } catch (err) {
       const errorMessage = err instanceof ApiError 
         ? err.message 
@@ -58,9 +81,9 @@ export function useOfficers() {
       setError(errorMessage);
       throw err;
     }
-  }, [api.officers.update]);
+  }, [api]);
 
-  const removeOfficer = useCallback(async (id: number) => {
+  const removeOfficer = useCallback(async (id: string) => {
     try {
       setError(null);
       await api.officers.delete(id);
@@ -72,7 +95,7 @@ export function useOfficers() {
       setError(errorMessage);
       throw err;
     }
-  }, [api.officers.delete]);
+  }, [api]);
 
   return {
     officers,

@@ -1,0 +1,103 @@
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: cs-club-db
+    environment:
+      POSTGRES_DB: cs_club
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cs-club-network
+
+  # Django API Backend
+  api:
+    build:
+      context: ./apps/api
+      target: development
+    container_name: cs-club-api
+    environment:
+      - DJANGO_ENV=development
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-dev-secret-key-change-in-production}
+      - DEBUG=${DEBUG:-True}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost,127.0.0.1,0.0.0.0,api}
+      - DB_NAME=${DB_NAME:-cs_club}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - DB_HOST=db
+      - DB_PORT=5432
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:3001}
+      - CLERK_PUBLISHABLE_KEY=${CLERK_PUBLISHABLE_KEY:-pk_test_ZW5kbGVzcy1ob3JzZS0xNi5jbGVyay5hY2NvdW50cy5kZXYk}
+      - CLERK_SECRET_KEY=${CLERK_SECRET_KEY:-sk_test_s8Tne4KHRtXVVUFfhdNUdeWKtywSwjxaf0mwwyck9E}
+    volumes:
+      - ./apps/api:/app
+      - /app/__pycache__
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - cs-club-network
+    command: python manage.py runserver 0.0.0.0:8000
+
+  # Public Website (Next.js) - Using node image directly for dev
+  public-website:
+    image: node:20-alpine
+    container_name: cs-club-public-website
+    working_dir: /workspace
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000/api}
+    volumes:
+      - .:/workspace
+      - /workspace/node_modules
+      - /workspace/apps/public-website/node_modules
+      - /workspace/apps/public-website/.next
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    networks:
+      - cs-club-network
+    command: sh -c "corepack enable && corepack prepare pnpm@latest --activate && cd /workspace && pnpm install && pnpm build:packages && cd apps/public-website && pnpm dev"
+
+  # Officers Hub (Next.js) - Using node image directly for dev
+  officers-hub:
+    image: node:20-alpine
+    container_name: cs-club-officers-hub
+    working_dir: /workspace
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000/api}
+      - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:-pk_test_ZW5kbGVzcy1ob3JzZS0xNi5jbGVyay5hY2NvdW50cy5kZXYk}
+      - CLERK_SECRET_KEY=${CLERK_SECRET_KEY:-sk_test_s8Tne4KHRtXVVUFfhdNUdeWKtywSwjxaf0mwwyck9E}
+    volumes:
+      - .:/workspace
+      - /workspace/node_modules
+      - /workspace/apps/officers-hub/node_modules
+      - /workspace/apps/officers-hub/.next
+    ports:
+      - "3001:3001"
+    depends_on:
+      - api
+    networks:
+      - cs-club-network
+    command: sh -c "corepack enable && corepack prepare pnpm@latest --activate && cd /workspace && pnpm install && pnpm build:packages && cd apps/officers-hub && npx next dev --turbopack --port 3001"
+
+volumes:
+  postgres_data:
+
+networks:
+  cs-club-network:
+    driver: bridge

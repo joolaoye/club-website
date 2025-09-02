@@ -1,8 +1,8 @@
 "use client";
 
-import { Button } from "@workspace/ui/components/button";
-import { Card } from "@workspace/ui/components/card";
-import { formatDate, formatTime } from '@workspace/ui/lib/utils';
+import { Button } from "@club-website/ui/components/button";
+import { Card } from "@club-website/ui/components/card";
+import { formatDate, formatTime } from '@club-website/ui/lib/utils';
 import { Calendar, MapPin, Users } from 'lucide-react';
 
 interface LinkProps {

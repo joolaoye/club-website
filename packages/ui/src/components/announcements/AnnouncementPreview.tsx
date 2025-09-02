@@ -6,11 +6,11 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@workspace/ui/components/dialog';
-import { useAnnouncementPreview } from '@workspace/ui/components/announcements/AnnouncementPreviewContext';
-import { formatDate } from '@workspace/ui/lib/utils';
+} from '@club-website/ui/components/dialog';
+import { useAnnouncementPreview } from '@club-website/ui/components/announcements/AnnouncementPreviewContext';
+import { formatDate } from '@club-website/ui/lib/utils';
 import { Calendar, Pin } from 'lucide-react';
-import { Separator } from '@workspace/ui/components/separator';
+import { Separator } from '@club-website/ui/components/separator';
 
 // Simple markdown-like text renderer for basic formatting
 function renderMarkdownText(text: string) {

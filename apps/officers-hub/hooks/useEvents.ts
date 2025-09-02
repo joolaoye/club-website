@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useApiClient, transformEvent, transformRSVP, type Event, type EventRSVP, ApiError } from "../lib/api";
+import { useApiClient, type Event, type EventRSVP, ApiError } from "../lib/api";
+import { 
+  toCreateEventRequest, 
+  toUpdateEventRequest,
+  toEventUIProps,
+  toRSVPUIProps
+} from "../lib/adapters";
 
 export { type Event, type EventRSVP } from "../lib/api";
 
@@ -19,9 +25,8 @@ export function useEvents() {
     try {
       setLoading(true);
       setError(null);
-      const backendEvents = await api.events.getAll();
-      const transformedEvents = backendEvents.map(transformEvent);
-      setEvents(transformedEvents);
+      const events = await api.events.getAll();
+      setEvents(events);
     } catch (err) {
       const errorMessage = err instanceof ApiError 
         ? err.message 
@@ -33,13 +38,18 @@ export function useEvents() {
     }
   };
 
-  const addEvent = async (event: Omit<Event, "id" | "rsvpCount" | "rsvps">) => {
+  const addEvent = async (eventData: {
+    title: string;
+    description: string;
+    location: string;
+    startTime: string;
+  }) => {
     try {
       setError(null);
-      const backendEvent = await api.events.create(event);
-      const newEvent = transformEvent(backendEvent);
-      setEvents(prev => [newEvent, ...prev]);
-      return newEvent;
+      const request = toCreateEventRequest(eventData);
+      const event = await api.events.create(request);
+      setEvents(prev => [...prev, event]);
+      return event;
     } catch (err) {
       const errorMessage = err instanceof ApiError 
         ? err.message 
@@ -49,13 +59,18 @@ export function useEvents() {
     }
   };
 
-  const editEvent = async (id: number, event: Partial<Event>) => {
+  const editEvent = async (id: string, eventData: Partial<{
+    title: string;
+    description: string;
+    location: string;
+    startTime: string;
+  }>) => {
     try {
       setError(null);
-      const backendEvent = await api.events.update(id, event);
-      const updatedEvent = transformEvent(backendEvent);
-      setEvents(prev => prev.map(e => e.id === id ? updatedEvent : e));
-      return updatedEvent;
+      const request = toUpdateEventRequest(eventData);
+      const event = await api.events.update(id, request);
+      setEvents(prev => prev.map(e => e.id === id ? event : e));
+      return event;
     } catch (err) {
       const errorMessage = err instanceof ApiError 
         ? err.message 
@@ -65,7 +80,7 @@ export function useEvents() {
     }
   };
 
-  const removeEvent = async (id: number) => {
+  const removeEvent = async (id: string) => {
     try {
       setError(null);
       await api.events.delete(id);
@@ -79,16 +94,11 @@ export function useEvents() {
     }
   };
 
-  const getRSVPs = async (eventId: number): Promise<EventRSVP[]> => {
+  const getRSVPs = async (eventId: string): Promise<EventRSVP[]> => {
     try {
-      setError(null);
-      const backendRSVPs = await api.events.getRSVPs(eventId);
-      return backendRSVPs.map(transformRSVP);
+      return await api.events.getRSVPs(eventId);
     } catch (err) {
-      const errorMessage = err instanceof ApiError 
-        ? err.message 
-        : "Failed to load RSVPs";
-      setError(errorMessage);
+      console.error("Error loading RSVPs:", err);
       throw err;
     }
   };

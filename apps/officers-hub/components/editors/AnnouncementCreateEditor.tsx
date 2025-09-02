@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Button } from "@workspace/ui/components/button";
-import { Input } from "@workspace/ui/components/input";
-import { Label } from "@workspace/ui/components/label";
-import { Checkbox } from "@workspace/ui/components/checkbox";
+import { Button } from "@club-website/ui/components/button";
+import { Input } from "@club-website/ui/components/input";
+import { Label } from "@club-website/ui/components/label";
+import { Checkbox } from "@club-website/ui/components/checkbox";
 import { 
   X, 
   Save, 
@@ -117,9 +117,9 @@ export default function AnnouncementCreateEditor() {
       
       const announcementData = {
         content,
-        display_text: displayText || undefined,
-        pinned: isPinned,
-        is_draft: true, // Explicitly save as draft
+        displayText: displayText || undefined,
+        isPinned: isPinned,
+        isDraft: true, // Explicitly save as draft
       };
 
       await api.announcements.create(announcementData);
@@ -152,9 +152,9 @@ export default function AnnouncementCreateEditor() {
       
       const announcementData = {
         content,
-        display_text: displayText || undefined,
-        pinned: isPinned,
-        is_draft: false, // Publish immediately
+        displayText: displayText || undefined,
+        isPinned: isPinned,
+        isDraft: false, // Publish immediately
       };
 
       await api.announcements.create(announcementData);

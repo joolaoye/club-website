@@ -12,20 +12,20 @@ import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from "@workspace/ui/components/avatar"
+} from "@club-website/ui/components/avatar"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@workspace/ui/components/popover"
+} from "@club-website/ui/components/popover"
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@workspace/ui/components/sidebar"
-import { Button } from "@workspace/ui/components/button"
-import { Separator } from "@workspace/ui/components/separator"
+} from "@club-website/ui/components/sidebar"
+import { Button } from "@club-website/ui/components/button"
+import { Separator } from "@club-website/ui/components/separator"
 
 export function NavUser() {
   const { isMobile } = useSidebar()

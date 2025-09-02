@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { motion } from "motion/react";
-import { cn } from "@workspace/ui/lib/utils";
+import { cn } from "@club-website/ui/lib/utils";
 
 export const LampContainer = ({
   children,

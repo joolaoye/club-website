@@ -1,0 +1,19 @@
+{
+    "name": "@club-website/api-contracts",
+    "version": "0.1.0",
+    "description": "API request/response contracts for Club Website",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "files": ["dist"],
+    "scripts": {
+      "build": "tsc",
+      "clean": "rm -rf dist"
+    },
+    "devDependencies": {
+      "@club-website/typescript-config": "workspace:*",
+      "typescript": "^5.7.3"
+    },
+    "publishConfig": {
+      "access": "restricted"
+    }
+  }

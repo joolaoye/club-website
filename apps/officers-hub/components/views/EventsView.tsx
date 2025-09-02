@@ -1,14 +1,14 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card";
-import { Button } from "@workspace/ui/components/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@club-website/ui/components/card";
+import { Button } from "@club-website/ui/components/button";
 import { 
   Dialog, 
   DialogContent, 
   DialogHeader, 
   DialogTitle, 
   DialogTrigger 
-} from "@workspace/ui/components/dialog";
+} from "@club-website/ui/components/dialog";
 import { 
   Calendar, 
   Clock, 
@@ -21,45 +21,26 @@ import {
 } from "lucide-react";
 import { useEvents } from "@/hooks/useEvents";
 import { useMemo, useState } from "react";
-import { EventCard } from "@workspace/ui/components/events/EventCard";
-import { formatDate } from "@workspace/ui/lib/utils";
+import { EventCard } from "@club-website/ui/components/events/EventCard";
+import { formatDate } from "@club-website/ui/lib/utils";
 import { useNavigation } from "@/components/navigation/NavigationContext";
+import { toEventUIProps } from "@/lib/adapters";
+import type { Event, EventRSVP } from "@/lib/api";
 
-// Mock data - replace with actual API calls
-const mockEvents: Event[] = [
-  { id: '1', title: 'Intro to React Workshop', description: 'Learn the fundamentals of React and build a simple project.', startTime: '2024-08-10T14:00:00Z', endTime: '2024-08-10T16:00:00Z', location: 'Room 101', currentAttendees: 25, maxAttendees: 30, rsvps: [] },
-  { id: '2', title: 'First General Meeting', description: 'Join us for our first general meeting of the semester.', startTime: '2024-08-05T18:00:00Z', endTime: '2024-08-05T19:00:00Z', location: 'Auditorium', currentAttendees: 50, maxAttendees: 100, rsvps: [] },
-  { id: '3', title: 'Past Tech Talk', description: 'A talk on the future of AI.', startTime: '2023-04-20T17:00:00Z', endTime: '2023-04-20T18:00:00Z', location: 'Online', currentAttendees: 40, rsvps: [] },
-];
-
-interface EventRSVP {
-  id: string;
-  name: string;
-  email: string;
-}
-
-interface Event {
-  id: string;
-  title: string;
-  description: string;
-  startTime: string;
-  endTime: string;
-  location: string;
-  maxAttendees?: number;
-  currentAttendees: number;
-  rsvps: EventRSVP[];
-}
+// Types are imported from lib/api
 
 export default function EventsView() {
-  const [events] = useState<Event[]>(mockEvents);
+  const { events, loading, error, getRSVPs } = useEvents();
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [selectedEventRSVPs, setSelectedEventRSVPs] = useState<EventRSVP[]>([]);
   const [showRSVPs, setShowRSVPs] = useState(false);
+  const [loadingRSVPs, setLoadingRSVPs] = useState(false);
   const { setView } = useNavigation();
 
   const { upcomingEvents, pastEvents } = useMemo(() => {
     const now = new Date();
-    const upcoming = events.filter(event => new Date(event.startTime) > now);
-    const past = events.filter(event => new Date(event.startTime) <= now);
+    const upcoming = events.filter(event => event.scheduledAt > now);
+    const past = events.filter(event => event.scheduledAt <= now);
     return { upcomingEvents: upcoming, pastEvents: past };
   }, [events]);
 
@@ -70,6 +51,48 @@ export default function EventsView() {
   const handleEditEvent = (eventId: string) => {
     setView('events', 'edit', { id: eventId });
   };
+
+  const handleViewRSVPs = async (event: Event) => {
+    setSelectedEvent(event);
+    setShowRSVPs(true);
+    setLoadingRSVPs(true);
+    try {
+      const rsvps = await getRSVPs(event.id);
+      setSelectedEventRSVPs(rsvps);
+    } catch (error) {
+      console.error('Failed to load RSVPs:', error);
+      setSelectedEventRSVPs([]);
+    } finally {
+      setLoadingRSVPs(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Events</h1>
+            <p className="text-muted-foreground">Loading events...</p>
+          </div>
+        </div>
+        <div className="animate-pulse space-y-4">
+          <div className="h-32 bg-muted rounded-lg"></div>
+          <div className="h-32 bg-muted rounded-lg"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center py-8">
+          <p className="text-red-500">Failed to load events: {error}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -90,7 +113,7 @@ export default function EventsView() {
           <div className="grid gap-4 md:grid-cols-2">
             {upcomingEvents.map((event) => (
               <div key={event.id} className="relative">
-                <EventCard event={event} LinkComponent={() => <div />} />
+                <EventCard event={toEventUIProps(event)} LinkComponent={() => <div />} />
                 <div className="absolute top-2 right-2 flex gap-1">
                   <Button
                     variant="outline"
@@ -102,10 +125,7 @@ export default function EventsView() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => {
-                      setSelectedEvent(event);
-                      setShowRSVPs(true);
-                    }}
+                    onClick={() => handleViewRSVPs(event)}
                   >
                     <Eye className="h-4 w-4" />
                   </Button>
@@ -125,15 +145,12 @@ export default function EventsView() {
           <div className="grid gap-4 md:grid-cols-2">
             {pastEvents.map((event) => (
               <div key={event.id} className="relative">
-                <EventCard event={event} LinkComponent={() => <div />} />
+                <EventCard event={toEventUIProps(event)} LinkComponent={() => <div />} />
                 <div className="absolute top-2 right-2">
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => {
-                      setSelectedEvent(event);
-                      setShowRSVPs(true);
-                    }}
+                    onClick={() => handleViewRSVPs(event)}
                   >
                     <Eye className="h-4 w-4" />
                   </Button>
@@ -159,21 +176,27 @@ export default function EventsView() {
             <div className="mt-4">
               <div className="flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">
-                  Total RSVPs: {selectedEvent.rsvps.length}
+                  Total RSVPs: {selectedEventRSVPs.length}
                 </p>
               </div>
-              <div className="mt-4 space-y-2 max-h-60 overflow-y-auto">
-                {selectedEvent.rsvps.map((rsvp) => (
-                  <div key={rsvp.id} className="text-sm">
-                    {rsvp.name} ({rsvp.email})
-                  </div>
-                ))}
-                {selectedEvent.rsvps.length === 0 && (
-                  <p className="text-center text-muted-foreground py-8">
-                    No RSVPs to display for this event.
-                  </p>
-                )}
-              </div>
+              {loadingRSVPs ? (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">Loading RSVPs...</p>
+                </div>
+              ) : (
+                <div className="mt-4 space-y-2 max-h-60 overflow-y-auto">
+                  {selectedEventRSVPs.map((rsvp) => (
+                    <div key={rsvp.id} className="text-sm">
+                      {rsvp.name} ({rsvp.email})
+                    </div>
+                  ))}
+                  {selectedEventRSVPs.length === 0 && (
+                    <p className="text-center text-muted-foreground py-8">
+                      No RSVPs to display for this event.
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           </DialogContent>
         </Dialog>

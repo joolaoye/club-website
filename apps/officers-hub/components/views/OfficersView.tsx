@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, Button, OfficerCard, OfficerCardSkeleton } from "@workspace/ui/components";
+import { Button } from "@club-website/ui/components/button";
+import { Card, CardContent } from "@club-website/ui/components/card";
+import { OfficerCard } from "@club-website/ui/components/officers/OfficerCard";
+import { OfficerCardSkeleton } from "@club-website/ui/components/officers/OfficerCardSkeleton";
 import { 
   Dialog,
   DialogContent,
@@ -9,7 +12,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@workspace/ui/components/dialog";
+} from "@club-website/ui/components/dialog";
 import { 
   Plus, 
   User,
@@ -18,6 +21,7 @@ import {
 import { useNavigation } from "@/components/navigation/NavigationContext";
 import { useOfficers } from "@/hooks/useOfficers";
 import { useApiClient } from "@/lib/api";
+import { toOfficerUIProps } from "@/lib/adapters";
 import OfficerCreateEditor from "@/components/editors/OfficerCreateEditor";
 import OfficerEditEditor from "@/components/editors/OfficerEditEditor";
 import { toast } from "sonner";
@@ -128,19 +132,10 @@ export default function OfficersView() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {officers.map((backendOfficer) => (
+        {officers.map((officer) => (
           <OfficerCard
-            key={backendOfficer.id}
-            officer={{
-              id: backendOfficer.id,
-              name: backendOfficer.name,
-              position: backendOfficer.position,
-              bio: backendOfficer.bio || "",
-              email: backendOfficer.email || undefined,
-              image_url: backendOfficer.image_url || undefined,
-              linkedin_url: backendOfficer.linkedin_url || undefined,
-              order_index: backendOfficer.order_index,
-            }}
+            key={officer.id}
+            officer={toOfficerUIProps(officer)}
             variant="hub"
             onEdit={handleEditOfficer}
             onDelete={handleDeleteOfficer}
