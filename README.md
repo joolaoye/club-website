@@ -213,11 +213,11 @@ Check out our [open issues](https://github.com/your-org/club-website/issues), es
 
 Thanks to all our amazing contributors! 🎉
 
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<a href="https://github.com/your-org/club-website/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=your-org/club-website&max=500&columns=20&anon=true" />
+<a href="https://github.com/Computer-Science-Club-SCSU-University/club-website/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Computer-Science-Club-SCSU-University/club-website" />
 </a>
-<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+Made with [contrib.rocks](https://contrib.rocks).
 
 ## 📄 License
 
