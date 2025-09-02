@@ -49,10 +49,20 @@ git remote add upstream https://github.com/Computer-Science-Club-SCSU-University
 ### Step 3: Set Up the Development Environment
 
 ```bash
-# Install dependencies and set up the database
-pnpm setup
+# Step 1: Start Docker Desktop (choose based on your OS)
+# For macOS:
+pnpm docker:start:mac
 
-# Start all services (frontend, backend, database)
+# For Linux:
+pnpm docker:start:linux
+
+# For Windows:
+pnpm docker:start:win
+
+# Step 2: Bootstrap the project (installs dependencies, sets up database, runs migrations)
+pnpm bootstrap
+
+# Step 3: Start all services (frontend, backend, database)
 pnpm dev
 ```
 
@@ -61,9 +71,9 @@ That's it! The application should now be running:
 - **Officers Hub**: http://localhost:3001
 - **API**: http://localhost:8000/api
 
-You can login to the officers-hub with the credentials below:
-- Email: officer+clerk_test@example.com
-- Code: 424242
+For testing the Officers Hub, you can use Clerk's test mode:
+- Email: `officer+clerk_test@example.com`
+- Verification Code: `424242`
 
 ## 💻 Development Workflow
 

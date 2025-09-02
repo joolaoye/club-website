@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # PostgreSQL Database
   db:
@@ -27,8 +25,6 @@ services:
       context: ./apps/api
       target: development
     container_name: cs-club-api
-    env_file:
-      - .env
     environment:
       - DJANGO_ENV=development
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-dev-secret-key-change-in-production}
@@ -37,7 +33,7 @@ services:
       - DB_NAME=${DB_NAME:-cs_club}
       - DB_USER=${DB_USER:-postgres}
       - DB_PASSWORD=${DB_PASSWORD:-postgres}
-      - DB_HOST=db  # Always use 'db' service name in Docker
+      - DB_HOST=db
       - DB_PORT=5432
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:3001}
       - CLERK_PUBLISHABLE_KEY=${CLERK_PUBLISHABLE_KEY:-pk_test_ZW5kbGVzcy1ob3JzZS0xNi5jbGVyay5hY2NvdW50cy5kZXYk}
@@ -54,53 +50,50 @@ services:
       - cs-club-network
     command: python manage.py runserver 0.0.0.0:8000
 
-  # Public Website (Next.js)
+  # Public Website (Next.js) - Using node image directly for dev
   public-website:
-    build:
-      context: ./apps/public-website
-      target: runner
+    image: node:20-alpine
     container_name: cs-club-public-website
-    env_file:
-      - .env
+    working_dir: /workspace
     environment:
       - NODE_ENV=development
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000/api}
     volumes:
-      - ./apps/public-website:/app
-      - /app/node_modules
-      - /app/.next
+      - .:/workspace
+      - /workspace/node_modules
+      - /workspace/apps/public-website/node_modules
+      - /workspace/apps/public-website/.next
     ports:
       - "3000:3000"
     depends_on:
       - api
     networks:
       - cs-club-network
-    command: npm run dev
+    command: sh -c "corepack enable && corepack prepare pnpm@latest --activate && cd /workspace && pnpm install && cd apps/public-website && pnpm dev"
 
-  # Officers Hub (Next.js)
+  # Officers Hub (Next.js) - Using node image directly for dev
   officers-hub:
-    build:
-      context: ./apps/officers-hub
-      target: runner
+    image: node:20-alpine
     container_name: cs-club-officers-hub
-    env_file:
-      - .env
+    working_dir: /workspace
     environment:
       - NODE_ENV=development
+      - PORT=3001
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000/api}
       - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:-pk_test_ZW5kbGVzcy1ob3JzZS0xNi5jbGVyay5hY2NvdW50cy5kZXYk}
       - CLERK_SECRET_KEY=${CLERK_SECRET_KEY:-sk_test_s8Tne4KHRtXVVUFfhdNUdeWKtywSwjxaf0mwwyck9E}
     volumes:
-      - ./apps/officers-hub:/app
-      - /app/node_modules
-      - /app/.next
+      - .:/workspace
+      - /workspace/node_modules
+      - /workspace/apps/officers-hub/node_modules
+      - /workspace/apps/officers-hub/.next
     ports:
       - "3001:3001"
     depends_on:
       - api
     networks:
       - cs-club-network
-    command: npm run dev
+    command: sh -c "corepack enable && corepack prepare pnpm@latest --activate && cd /workspace && pnpm install && cd apps/officers-hub && npx next dev --turbopack --port 3001"
 
 volumes:
   postgres_data:

@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, Button, OfficerCard, OfficerCardSkeleton } from "@club-website/ui/components";
+import { Button } from "@club-website/ui/components/button";
+import { Card, CardContent } from "@club-website/ui/components/card";
+import { OfficerCard } from "@club-website/ui/components/officers/OfficerCard";
+import { OfficerCardSkeleton } from "@club-website/ui/components/officers/OfficerCardSkeleton";
 import { 
   Dialog,
   DialogContent,
