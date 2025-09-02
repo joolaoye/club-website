@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Button } from "@workspace/ui/components/button";
-import { Input } from "@workspace/ui/components/input";
-import { Label } from "@workspace/ui/components/label";
-import { Textarea } from "@workspace/ui/components/textarea";
+import { Button } from "@club-website/ui/components/button";
+import { Input } from "@club-website/ui/components/input";
+import { Label } from "@club-website/ui/components/label";
+import { Textarea } from "@club-website/ui/components/textarea";
 import { 
   Dialog,
   DialogContent,
@@ -12,7 +12,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@workspace/ui/components/dialog";
+} from "@club-website/ui/components/dialog";
 import { 
   X, 
   Save, 
@@ -24,10 +24,10 @@ import {
   Trash2,
   Image as ImageIcon
 } from "lucide-react";
-import { useApiClient, BackendOfficer } from "@/lib/api";
+import { useApiClient, Officer } from "@/lib/api";
 import { useNavigation } from "@/components/navigation/NavigationContext";
 import { UnsavedChangesDialog } from "./UnsavedChangesDialog";
-import { OfficerCard } from "@workspace/ui/components/officers/OfficerCard";
+import { OfficerCard } from "@club-website/ui/components/officers/OfficerCard";
 import { toast } from "sonner";
 
 interface OfficerFormData {
@@ -45,7 +45,7 @@ interface OfficerEditEditorProps {
 }
 
 export default function OfficerEditEditor({ officerId }: OfficerEditEditorProps) {
-  const [officer, setOfficer] = useState<BackendOfficer | null>(null);
+  const [officer, setOfficer] = useState<Officer | null>(null);
   const [formData, setFormData] = useState<OfficerFormData>({
     name: "",
     position: "",
@@ -81,24 +81,24 @@ export default function OfficerEditEditor({ officerId }: OfficerEditEditorProps)
   const loadOfficer = useCallback(async () => {
     try {
       setIsLoading(true);
-      const officerData = await api.officers.getById(officerId);
+      const officerData = await api.officers.getById(officerId.toString());
       setOfficer(officerData);
       
       const initialFormData = {
         name: officerData.name,
         position: officerData.position,
         bio: officerData.bio || "",
-        image_url: officerData.image_url || "",
-        linkedin_url: officerData.linkedin_url || "",
+        image_url: officerData.imageUrl || "",
+        linkedin_url: officerData.linkedinUrl || "",
         email: officerData.email || "",
-        order_index: officerData.order_index,
+        order_index: officerData.orderIndex,
       };
       
       setFormData(initialFormData);
       setOriginalFormData(initialFormData);
 
-      if (officerData.image_url) {
-        setPreviewUrl(officerData.image_url);
+      if (officerData.imageUrl) {
+        setPreviewUrl(officerData.imageUrl);
       }
     } catch (error) {
       console.error('Failed to load officer:', error);
@@ -183,13 +183,13 @@ export default function OfficerEditEditor({ officerId }: OfficerEditEditorProps)
         name: formData.name,
         position: formData.position,
         bio: formData.bio,
-        image_url: formData.image_url,
-        linkedin_url: formData.linkedin_url,
+        imageUrl: formData.image_url,
+        linkedinUrl: formData.linkedin_url,
         email: formData.email,
-        order_index: formData.order_index,
+        orderIndex: formData.order_index,
       };
 
-      await api.officers.update(officerId, officerData);
+      await api.officers.update(officerId.toString(), officerData);
       
       // Update original form data
       setOriginalFormData(formData);
@@ -208,7 +208,7 @@ export default function OfficerEditEditor({ officerId }: OfficerEditEditorProps)
   const handleDelete = useCallback(async () => {
     try {
       setIsDeleting(true);
-      await api.officers.delete(officerId);
+      await api.officers.delete(officerId.toString());
       
       toast.success('Officer deleted successfully');
       setView('officers');

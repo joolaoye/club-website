@@ -1,8 +1,8 @@
 "use client";
 
 import { useNavigation } from "@/components/navigation/NavigationContext";
-import { AnnouncementPreviewProvider } from "@workspace/ui/components/announcements/AnnouncementPreviewContext";
-import { AnnouncementPreview } from "@workspace/ui/components/announcements/AnnouncementPreview";
+import { AnnouncementPreviewProvider } from "@club-website/ui/components/announcements/AnnouncementPreviewContext";
+import { AnnouncementPreview } from "@club-website/ui/components/announcements/AnnouncementPreview";
 
 // Views
 import DashboardView from "@/components/views/DashboardView";

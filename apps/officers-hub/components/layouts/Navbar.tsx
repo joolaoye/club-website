@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Button } from "@workspace/ui/components/button";
-import { cn } from "@workspace/ui/lib/utils";
+import { Button } from "@club-website/ui/components/button";
+import { cn } from "@club-website/ui/lib/utils";
 
 const navigation = [
   { name: 'Home', href: '/' },

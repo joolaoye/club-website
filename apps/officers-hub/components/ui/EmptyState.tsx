@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@workspace/ui/components/button";
+import { Button } from "@club-website/ui/components/button";
 import { Calendar } from "lucide-react";
 
 interface EmptyStateProps {

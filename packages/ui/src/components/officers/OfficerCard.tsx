@@ -2,10 +2,10 @@
 
 import * as React from "react";
 import { Mail, Linkedin, Edit, Trash2 } from "lucide-react";
-import { Card, CardContent } from "@workspace/ui/components/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui/components/avatar";
-import { Button } from "@workspace/ui/components/button";
-import { cn } from "@workspace/ui/lib/utils";
+import { Card, CardContent } from "@club-website/ui/components/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@club-website/ui/components/avatar";
+import { Button } from "@club-website/ui/components/button";
+import { cn } from "@club-website/ui/lib/utils";
 
 export interface OfficerCardProps {
   officer: {

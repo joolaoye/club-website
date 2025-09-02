@@ -1,14 +1,15 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Button } from "@workspace/ui/components/button";
-import { Input } from "@workspace/ui/components/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select";
-import { AnnouncementCardOfficersHub } from "@workspace/ui/components/announcements/AnnouncementCardOfficersHub";
-import { AnnouncementPreviewProvider } from "@workspace/ui/components/announcements/AnnouncementPreviewContext";
-import { AnnouncementPreview } from "@workspace/ui/components/announcements/AnnouncementPreview";
-import { useIsMobile } from "@workspace/ui/hooks/use-mobile";
-import { useApiClient } from "@/lib/api";
+import { Button } from "@club-website/ui/components/button";
+import { Input } from "@club-website/ui/components/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@club-website/ui/components/select";
+import { AnnouncementCardOfficersHub } from "@club-website/ui/components/announcements/AnnouncementCardOfficersHub";
+import { AnnouncementPreviewProvider } from "@club-website/ui/components/announcements/AnnouncementPreviewContext";
+import { AnnouncementPreview } from "@club-website/ui/components/announcements/AnnouncementPreview";
+import { useIsMobile } from "@club-website/ui/hooks/use-mobile";
+import { useApiClient, type Announcement as DomainAnnouncement } from "@/lib/api";
+import { toAnnouncementUIProps } from "@/lib/adapters";
 import { useNavigation } from "@/components/navigation/NavigationContext";
 import {
   Plus,
@@ -20,8 +21,8 @@ import {
   X
 } from "lucide-react";
 import { toast } from "sonner";
-import { AnnouncementSkeletonList } from "@workspace/ui/components/announcements/AnnouncementSkeleton";
-import { Skeleton } from "@workspace/ui/components/skeleton";
+import { AnnouncementSkeletonList } from "@club-website/ui/components/announcements/AnnouncementSkeleton";
+import { Skeleton } from "@club-website/ui/components/skeleton";
 
 interface Announcement {
   id: string;
@@ -103,16 +104,19 @@ export default function AnnouncementsView() {
     try {
       setIsLoading(true);
       const data = await api.announcements.getAll();
-      const transformedAnnouncements: Announcement[] = data.map(announcement => ({
-        id: announcement.id.toString(),
-        content: announcement.content,
-        display_text: announcement.display_text || undefined,
-        pinned: announcement.pinned,
-        is_draft: announcement.is_draft,
-        discord_message_id: announcement.discord_message_id || undefined,
-        created_at: announcement.created_at,
-        updated_at: announcement.updated_at,
-      }));
+      const transformedAnnouncements: Announcement[] = data.map((announcement: DomainAnnouncement) => {
+        const uiProps = toAnnouncementUIProps(announcement);
+        return {
+          id: uiProps.id,
+          content: uiProps.content,
+          display_text: uiProps.displayText,
+          pinned: uiProps.isPinned,
+          is_draft: uiProps.isDraft,
+          discord_message_id: uiProps.discordMessageId,
+          created_at: uiProps.createdAt,
+          updated_at: uiProps.updatedAt,
+        };
+      });
       setAnnouncements(transformedAnnouncements);
     } catch (error) {
       console.error('Failed to fetch announcements:', error);
@@ -391,10 +395,10 @@ export default function AnnouncementsView() {
                       key={announcement.id}
                       announcement={announcement}
                       apiClient={{
-                        pin: async (id, displayText) => { await api.announcements.pin(id, displayText); },
-                        unpin: async (id) => { await api.announcements.unpin(id); },
-                        delete: async (id) => { await api.announcements.delete(id); },
-                        update: async (id, data) => { await api.announcements.update(id, data); },
+                        pin: async (id, displayText) => { await api.announcements.pin(id.toString(), displayText); },
+                        unpin: async (id) => { await api.announcements.unpin(id.toString()); },
+                        delete: async (id) => { await api.announcements.delete(id.toString()); },
+                        update: async (id, data) => { await api.announcements.update(id.toString(), data); },
                       }}
                       onEdit={(id) => setView('announcements', 'edit', { id })}
                       permissions={{
@@ -423,10 +427,10 @@ export default function AnnouncementsView() {
                       key={announcement.id}
                       announcement={announcement}
                       apiClient={{
-                        pin: async (id, displayText) => { await api.announcements.pin(id, displayText); },
-                        unpin: async (id) => { await api.announcements.unpin(id); },
-                        delete: async (id) => { await api.announcements.delete(id); },
-                        update: async (id, data) => { await api.announcements.update(id, data); },
+                        pin: async (id, displayText) => { await api.announcements.pin(id.toString(), displayText); },
+                        unpin: async (id) => { await api.announcements.unpin(id.toString()); },
+                        delete: async (id) => { await api.announcements.delete(id.toString()); },
+                        update: async (id, data) => { await api.announcements.update(id.toString(), data); },
                       }}
                       onEdit={(id) => setView('announcements', 'edit', { id })}
                       permissions={{

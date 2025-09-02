@@ -7,8 +7,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@workspace/ui/components/dialog";
-import { Button } from "@workspace/ui/components/button";
+} from "@club-website/ui/components/dialog";
+import { Button } from "@club-website/ui/components/button";
 import { AlertTriangle } from "lucide-react";
 
 interface UnsavedChangesDialogProps {

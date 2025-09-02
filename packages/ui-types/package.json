@@ -1,0 +1,23 @@
+{
+    "name": "@club-website/ui-types",
+    "version": "0.1.0",
+    "description": "Frontend UI types for Club Website",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "files": ["dist"],
+    "scripts": {
+      "build": "tsc",
+      "clean": "rm -rf dist"
+    },
+    "dependencies": {
+      "@club-website/domain-types": "workspace:*",
+      "@club-website/api-contracts": "workspace:*"
+    },
+    "devDependencies": {
+      "@club-website/typescript-config": "workspace:*",
+      "typescript": "^5.7.3"
+    },
+    "publishConfig": {
+      "access": "restricted"
+    }
+  }

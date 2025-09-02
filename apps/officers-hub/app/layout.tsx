@@ -3,12 +3,12 @@ import {
   ClerkProvider,
 } from '@clerk/nextjs'
 import { Geist, Geist_Mono } from 'next/font/google'
-import { Toaster } from "@workspace/ui/components/sonner"
+import { Toaster } from "@club-website/ui/components/sonner"
 import { Providers } from "@/components/providers"
 import { NavigationProvider } from "@/components/navigation/NavigationContext"
-import { SidebarProvider, SidebarInset, SidebarTrigger } from "@workspace/ui/components/sidebar"
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@club-website/ui/components/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
-import "@workspace/ui/globals.css"
+import "@club-website/ui/globals.css"
 
 const geistSans = Geist({
   variable: '--font-geist-sans',

@@ -8,7 +8,7 @@ import {
   useTransform,
 } from "motion/react";
 import { useRef } from "react";
-import { cn } from "@workspace/ui/lib/utils";
+import { cn } from "@club-website/ui/lib/utils";
 
 export function MovingBorderButton({
   borderRadius = "1.75rem",

@@ -1,7 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useApiClient, transformAnnouncement, type Announcement, ApiError } from "../lib/api";
+import { useApiClient, type Announcement, ApiError } from "../lib/api";
+import { 
+  toCreateAnnouncementRequest, 
+  toUpdateAnnouncementRequest,
+  toAnnouncementUIProps 
+} from "../lib/adapters";
 
 export { type Announcement } from "../lib/api";
 
@@ -19,9 +24,8 @@ export function useAnnouncements() {
     try {
       setLoading(true);
       setError(null);
-      const backendAnnouncements = await api.announcements.getAll();
-      const transformedAnnouncements = backendAnnouncements.map(transformAnnouncement);
-      setAnnouncements(transformedAnnouncements);
+      const announcements = await api.announcements.getAll();
+      setAnnouncements(announcements);
     } catch (err) {
       const errorMessage = err instanceof ApiError 
         ? err.message 
@@ -33,13 +37,18 @@ export function useAnnouncements() {
     }
   };
 
-  const addAnnouncement = async (announcement: Omit<Announcement, "id" | "publishedAt">) => {
+  const addAnnouncement = async (data: {
+    content: string;
+    displayText?: string;
+    isPinned?: boolean;
+    isDraft?: boolean;
+  }) => {
     try {
       setError(null);
-      const backendAnnouncement = await api.announcements.create(announcement);
-      const newAnnouncement = transformAnnouncement(backendAnnouncement);
-      setAnnouncements(prev => [newAnnouncement, ...prev]);
-      return newAnnouncement;
+      const request = toCreateAnnouncementRequest(data);
+      const announcement = await api.announcements.create(request);
+      setAnnouncements(prev => [...prev, announcement]);
+      return announcement;
     } catch (err) {
       const errorMessage = err instanceof ApiError 
         ? err.message 
@@ -49,13 +58,18 @@ export function useAnnouncements() {
     }
   };
 
-  const editAnnouncement = async (id: number, announcement: Partial<Announcement>) => {
+  const editAnnouncement = async (id: string, data: Partial<{
+    content: string;
+    displayText?: string;
+    isPinned?: boolean;
+    isDraft?: boolean;
+  }>) => {
     try {
       setError(null);
-      const backendAnnouncement = await api.announcements.update(id, announcement);
-      const updatedAnnouncement = transformAnnouncement(backendAnnouncement);
-      setAnnouncements(prev => prev.map(a => a.id === id ? updatedAnnouncement : a));
-      return updatedAnnouncement;
+      const request = toUpdateAnnouncementRequest(data);
+      const announcement = await api.announcements.update(id, request);
+      setAnnouncements(prev => prev.map(a => a.id === id ? announcement : a));
+      return announcement;
     } catch (err) {
       const errorMessage = err instanceof ApiError 
         ? err.message 
@@ -65,7 +79,7 @@ export function useAnnouncements() {
     }
   };
 
-  const removeAnnouncement = async (id: number) => {
+  const removeAnnouncement = async (id: string) => {
     try {
       setError(null);
       await api.announcements.delete(id);
@@ -79,18 +93,45 @@ export function useAnnouncements() {
     }
   };
 
-  const publishedAnnouncements = announcements.filter(a => a.status === "published");
-  const draftAnnouncements = announcements.filter(a => a.status === "draft");
+  const pinAnnouncement = async (id: string, displayText: string) => {
+    try {
+      setError(null);
+      const announcement = await api.announcements.pin(id, displayText);
+      setAnnouncements(prev => prev.map(a => a.id === id ? announcement : a));
+      return announcement;
+    } catch (err) {
+      const errorMessage = err instanceof ApiError 
+        ? err.message 
+        : "Failed to pin announcement";
+      setError(errorMessage);
+      throw err;
+    }
+  };
+
+  const unpinAnnouncement = async (id: string) => {
+    try {
+      setError(null);
+      const announcement = await api.announcements.unpin(id);
+      setAnnouncements(prev => prev.map(a => a.id === id ? announcement : a));
+      return announcement;
+    } catch (err) {
+      const errorMessage = err instanceof ApiError 
+        ? err.message 
+        : "Failed to unpin announcement";
+      setError(errorMessage);
+      throw err;
+    }
+  };
 
   return {
     announcements,
-    publishedAnnouncements,
-    draftAnnouncements,
     loading,
     error,
     addAnnouncement,
     editAnnouncement,
     removeAnnouncement,
+    pinAnnouncement,
+    unpinAnnouncement,
     refetch: loadAnnouncements,
   };
 }

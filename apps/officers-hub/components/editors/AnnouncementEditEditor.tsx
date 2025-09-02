@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Button } from "@workspace/ui/components/button";
-import { Input } from "@workspace/ui/components/input";
-import { Label } from "@workspace/ui/components/label";
-import { Checkbox } from "@workspace/ui/components/checkbox";
+import { Button } from "@club-website/ui/components/button";
+import { Input } from "@club-website/ui/components/input";
+import { Label } from "@club-website/ui/components/label";
+import { Checkbox } from "@club-website/ui/components/checkbox";
 import { 
   X, 
   Save, 
@@ -115,17 +115,17 @@ export default function AnnouncementEditEditor() {
   const loadAnnouncement = async (id: number) => {
     try {
       setIsLoading(true);
-      const announcement = await api.announcements.getById(id);
+      const announcement = await api.announcements.getById(id.toString());
       
       setContent(announcement.content);
-      setDisplayText(announcement.display_text || "");
-      setIsPinned(announcement.pinned || false);
-      setIsDraft(announcement.is_draft !== false);
+      setDisplayText(announcement.displayText || "");
+      setIsPinned(announcement.isPinned || false);
+      setIsDraft(announcement.isDraft !== false);
       
       // Store original values
       setOriginalContent(announcement.content);
-      setOriginalDisplayText(announcement.display_text || "");
-      setOriginalIsPinned(announcement.pinned || false);
+      setOriginalDisplayText(announcement.displayText || "");
+      setOriginalIsPinned(announcement.isPinned || false);
     } catch (error) {
       console.error('Failed to load announcement:', error);
       toast.error('Failed to load announcement');
@@ -180,12 +180,12 @@ export default function AnnouncementEditEditor() {
       
       const announcementData = {
         content,
-        display_text: displayText || undefined,
-        pinned: isPinned,
-        is_draft: isDraft, // Keep current draft status
+        displayText: displayText || undefined,
+        isPinned: isPinned,
+        isDraft: isDraft, // Keep current draft status
       };
 
-      await api.announcements.update(parseInt(announcementId), announcementData);
+      await api.announcements.update(announcementId, announcementData);
       
       // Update original values
       setOriginalContent(content);
@@ -219,12 +219,12 @@ export default function AnnouncementEditEditor() {
       
       const announcementData = {
         content,
-        display_text: displayText || undefined,
-        pinned: isPinned,
-        is_draft: false, // Publish
+        displayText: displayText || undefined,
+        isPinned: isPinned,
+        isDraft: false, // Publish
       };
 
-      await api.announcements.update(parseInt(announcementId), announcementData);
+      await api.announcements.update(announcementId, announcementData);
       
       setIsDraft(false);
       setHasUnsavedChanges(false);

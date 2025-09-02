@@ -1,4 +1,4 @@
-import { Card } from "@workspace/ui/components/card";
+import { Card } from "@club-website/ui/components/card";
 
 export function EventSkeleton() {
   return (

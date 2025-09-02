@@ -1,5 +1,5 @@
-import { Card } from "@workspace/ui/components/card";
-import { Skeleton } from "@workspace/ui/components/skeleton";
+import { Card } from "@club-website/ui/components/card";
+import { Skeleton } from "@club-website/ui/components/skeleton";
 
 export function AnnouncementSkeleton() {
   return (

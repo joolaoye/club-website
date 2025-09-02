@@ -21,7 +21,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
-} from "@workspace/ui/components/sidebar"
+} from "@club-website/ui/components/sidebar"
 
 import { NavUser } from "./nav-user"
 import { useNavigation } from "./navigation/NavigationContext"

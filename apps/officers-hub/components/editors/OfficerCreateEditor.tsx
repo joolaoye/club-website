@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import { Button } from "@workspace/ui/components/button";
-import { Input } from "@workspace/ui/components/input";
-import { Label } from "@workspace/ui/components/label";
-import { Textarea } from "@workspace/ui/components/textarea";
+import { Button } from "@club-website/ui/components/button";
+import { Input } from "@club-website/ui/components/input";
+import { Label } from "@club-website/ui/components/label";
+import { Textarea } from "@club-website/ui/components/textarea";
 import { 
   X, 
   Save, 
@@ -18,7 +18,7 @@ import {
 import { useApiClient } from "@/lib/api";
 import { useNavigation } from "@/components/navigation/NavigationContext";
 import { UnsavedChangesDialog } from "./UnsavedChangesDialog";
-import { OfficerCard } from "@workspace/ui/components/officers/OfficerCard";
+import { OfficerCard } from "@club-website/ui/components/officers/OfficerCard";
 import { toast } from "sonner";
 
 interface OfficerFormData {
@@ -115,10 +115,10 @@ export default function OfficerCreateEditor() {
         name: formData.name,
         position: formData.position,
         bio: formData.bio,
-        image_url: formData.image_url,
-        linkedin_url: formData.linkedin_url,
+        imageUrl: formData.image_url,
+        linkedinUrl: formData.linkedin_url,
         email: formData.email,
-        order_index: formData.order_index,
+        orderIndex: formData.order_index,
       };
 
       await api.officers.create(officerData);

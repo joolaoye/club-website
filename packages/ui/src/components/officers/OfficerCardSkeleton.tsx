@@ -1,8 +1,8 @@
 "use client";
 
-import { Card, CardContent } from "@workspace/ui/components/card";
-import { Skeleton } from "@workspace/ui/components/skeleton";
-import { cn } from "@workspace/ui/lib/utils";
+import { Card, CardContent } from "@club-website/ui/components/card";
+import { Skeleton } from "@club-website/ui/components/skeleton";
+import { cn } from "@club-website/ui/lib/utils";
 
 interface OfficerCardSkeletonProps {
   className?: string;

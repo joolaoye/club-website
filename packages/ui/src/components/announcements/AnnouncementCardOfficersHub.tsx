@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Card } from "@workspace/ui/components/card";
-import { Button } from '@workspace/ui/components/button';
+import { Card } from "@club-website/ui/components/card";
+import { Button } from '@club-website/ui/components/button';
 import { 
   Dialog, 
   DialogContent, 
@@ -10,16 +10,16 @@ import {
   DialogFooter, 
   DialogHeader, 
   DialogTitle 
-} from '@workspace/ui/components/dialog';
-import { Input } from '@workspace/ui/components/input';
-import { Label } from '@workspace/ui/components/label';
+} from '@club-website/ui/components/dialog';
+import { Input } from '@club-website/ui/components/input';
+import { Label } from '@club-website/ui/components/label';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@workspace/ui/components/dropdown-menu';
+} from '@club-website/ui/components/dropdown-menu';
 import { 
   MoreHorizontal, 
   Edit, 
@@ -31,8 +31,8 @@ import {
   Globe
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { formatDate } from '@workspace/ui/lib/utils';
-import { useAnnouncementPreview } from '@workspace/ui/components/announcements/AnnouncementPreviewContext';
+import { formatDate } from '@club-website/ui/lib/utils';
+import { useAnnouncementPreview } from '@club-website/ui/components/announcements/AnnouncementPreviewContext';
 
 interface Announcement {
   id: string;
