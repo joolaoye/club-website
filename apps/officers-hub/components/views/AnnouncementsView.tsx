@@ -103,7 +103,7 @@ export default function AnnouncementsView() {
   const fetchAnnouncements = async () => {
     try {
       setIsLoading(true);
-      const data = await api.announcements.getAll();
+      const data = await api.announcements.getAllAdmin();
       const transformedAnnouncements: Announcement[] = data.map((announcement: DomainAnnouncement) => {
         const uiProps = toAnnouncementUIProps(announcement);
         return {

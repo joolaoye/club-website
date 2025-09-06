@@ -80,7 +80,7 @@ class OfficerSerializer(serializers.ModelSerializer):
     
     def validate_image_url(self, value):
         """Validate image URL format. Kept for backward compatibility and potential future enhancements."""
-        return validate_url_format(value, "Image URL")
+        return validate_url_format(value, "Image URL", allow_data_urls=True)
     
     def validate_linkedin_url(self, value):
         """Validate LinkedIn URL format. Kept for backward compatibility and potential future enhancements."""
@@ -130,7 +130,7 @@ class OfficerUpdateSerializer(serializers.ModelSerializer):
     
     def validate_image_url(self, value):
         """Validate image URL format. Kept for backward compatibility and potential future enhancements."""
-        return validate_url_format(value, "Image URL")
+        return validate_url_format(value, "Image URL", allow_data_urls=True)
     
     def validate_linkedin_url(self, value):
         """Validate LinkedIn URL format. Kept for backward compatibility and potential future enhancements."""

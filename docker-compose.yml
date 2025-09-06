@@ -50,7 +50,7 @@ services:
       - cs-club-network
     command: python manage.py runserver 0.0.0.0:8000
 
-  # Public Website (Next.js) - Using node image directly for dev
+  # Public Website (Next.js) - Using node image with pnpm pre-installed
   public-website:
     image: node:20-alpine
     container_name: cs-club-public-website
@@ -69,9 +69,9 @@ services:
       - api
     networks:
       - cs-club-network
-    command: sh -c "corepack enable && corepack prepare pnpm@latest --activate && cd /workspace && pnpm install && pnpm build:packages && cd apps/public-website && pnpm dev"
+    command: sh -c "npm install -g pnpm@latest && cd /workspace && pnpm install && pnpm build:packages && cd apps/public-website && pnpm dev"
 
-  # Officers Hub (Next.js) - Using node image directly for dev
+  # Officers Hub (Next.js) - Using node image with pnpm pre-installed
   officers-hub:
     image: node:20-alpine
     container_name: cs-club-officers-hub
@@ -93,7 +93,7 @@ services:
       - api
     networks:
       - cs-club-network
-    command: sh -c "corepack enable && corepack prepare pnpm@latest --activate && cd /workspace && pnpm install && pnpm build:packages && cd apps/officers-hub && npx next dev --turbopack --port 3001"
+    command: sh -c "npm install -g pnpm@latest && cd /workspace && pnpm install && pnpm build:packages && cd apps/officers-hub && npx next dev --turbopack --port 3001"
 
 volumes:
   postgres_data:

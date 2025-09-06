@@ -16,6 +16,7 @@ import {
 import { useApiClient } from "@/lib/api";
 import { useNavigation } from "@/components/navigation/NavigationContext";
 import { UnsavedChangesDialog } from "./UnsavedChangesDialog";
+import { toCreateAnnouncementRequest } from "@/lib/adapters";
 import { toast } from "sonner";
 
 // Simple markdown-like text renderer for live preview
@@ -122,9 +123,12 @@ export default function AnnouncementCreateEditor() {
         isDraft: true, // Explicitly save as draft
       };
 
-      await api.announcements.create(announcementData);
+      const request = toCreateAnnouncementRequest(announcementData);
+
+      await api.announcements.create(request);
       
-      toast.success('Draft saved successfully');
+      // toast.success('Draft saved successfully');
+      toast.success(`Announcement data: ${JSON.stringify(announcementData)}`);
       setHasUnsavedChanges(false);
       setView('announcements'); // Go back to announcements list
     } catch (error) {
@@ -157,7 +161,9 @@ export default function AnnouncementCreateEditor() {
         isDraft: false, // Publish immediately
       };
 
-      await api.announcements.create(announcementData);
+      const request = toCreateAnnouncementRequest(announcementData);
+
+      await api.announcements.create(request);
       
       toast.success('Announcement published successfully!');
       setHasUnsavedChanges(false);

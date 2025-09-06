@@ -16,8 +16,20 @@ export class AnnouncementsResource {
      * Get all announcements with optional filters
      */
     async getAll(filters?: AnnouncementFilters): Promise<Announcement[]> {
-        const endpoint = filters?.is_draft !== undefined ? '/announcements/admin/' : '/announcements/';
+        // For officers hub, always use admin endpoint to get all announcements including drafts
+        // For public website, use the regular endpoint that only returns published
+        const endpoint = '/announcements/';
         const response = await this.transport.get<AnnouncementResponse[]>(endpoint, {
+            params: filters
+        });
+        return response.map(transformAnnouncementResponse);
+    }
+
+    /**
+     * Get all announcements including drafts (for officers hub)
+     */
+    async getAllAdmin(filters?: AnnouncementFilters): Promise<Announcement[]> {
+        const response = await this.transport.get<AnnouncementResponse[]>('/announcements/admin/', {
             params: filters
         });
         return response.map(transformAnnouncementResponse);

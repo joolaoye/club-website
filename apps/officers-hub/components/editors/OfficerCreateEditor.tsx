@@ -19,6 +19,7 @@ import { useApiClient } from "@/lib/api";
 import { useNavigation } from "@/components/navigation/NavigationContext";
 import { UnsavedChangesDialog } from "./UnsavedChangesDialog";
 import { OfficerCard } from "@club-website/ui/components/officers/OfficerCard";
+import { toCreateOfficerRequest } from "@/lib/adapters";
 import { toast } from "sonner";
 
 interface OfficerFormData {
@@ -121,7 +122,9 @@ export default function OfficerCreateEditor() {
         orderIndex: formData.order_index,
       };
 
-      await api.officers.create(officerData);
+      const request = toCreateOfficerRequest(officerData);
+
+      await api.officers.create(request);
       
       toast.success('Officer created successfully');
       setHasUnsavedChanges(false);

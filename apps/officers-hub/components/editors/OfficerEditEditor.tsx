@@ -28,6 +28,7 @@ import { useApiClient, Officer } from "@/lib/api";
 import { useNavigation } from "@/components/navigation/NavigationContext";
 import { UnsavedChangesDialog } from "./UnsavedChangesDialog";
 import { OfficerCard } from "@club-website/ui/components/officers/OfficerCard";
+import { toUpdateOfficerRequest } from "@/lib/adapters";
 import { toast } from "sonner";
 
 interface OfficerFormData {
@@ -77,7 +78,7 @@ export default function OfficerEditEditor({ officerId }: OfficerEditEditorProps)
   const api = useApiClient();
   const { setView, goBack } = useNavigation();
 
-  // Load officer data - FIX: Remove api.officers from dependencies
+  // Load officer data
   const loadOfficer = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -189,12 +190,15 @@ export default function OfficerEditEditor({ officerId }: OfficerEditEditorProps)
         orderIndex: formData.order_index,
       };
 
-      await api.officers.update(officerId.toString(), officerData);
+      const request = toUpdateOfficerRequest(officerData);
+
+      await api.officers.update(officerId.toString(), request);
       
       // Update original form data
       setOriginalFormData(formData);
       
       toast.success('Officer updated successfully');
+
       setHasUnsavedChanges(false);
       setView('officers');
     } catch (error) {
@@ -549,3 +553,6 @@ export default function OfficerEditEditor({ officerId }: OfficerEditEditorProps)
     </>
   );
 }
+
+
+
