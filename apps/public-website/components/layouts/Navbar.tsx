@@ -21,7 +21,7 @@ export function Navbar() {
 
   return (
     <header className="fixed top-0 z-[100] w-full border-b border-border/40 bg-background/95">
-      <div className="container flex h-16 max-w-screen-2xl items-center justify-between px-6 md:px-8">
+      <div className="flex h-16 w-full items-center justify-between px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2">
           <Image src="/logo.png" alt="Computer Science Club" width={32} height={32} />
@@ -46,7 +46,7 @@ export function Navbar() {
           ))}
         </nav>
 
-        {/* CTA Button and Theme Toggle */}
+        {/* CTA Button*/}
         <div className="hidden md:flex items-center space-x-2">
           <Button size="sm">
             <a href="https://discord.gg/zeFSpn3VJ9" target="_blank" rel="noopener noreferrer">
