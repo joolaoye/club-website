@@ -40,8 +40,6 @@ export function useOfficers() {
     position: string;
     bio?: string;
     imageUrl?: string;
-    linkedinUrl?: string;
-    email?: string;
     orderIndex?: number;
   }) => {
     try {
@@ -64,8 +62,6 @@ export function useOfficers() {
     position: string;
     bio?: string;
     imageUrl?: string;
-    linkedinUrl?: string;
-    email?: string;
     orderIndex?: number;
   }>) => {
     try {

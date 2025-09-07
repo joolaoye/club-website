@@ -45,9 +45,7 @@ export function toOfficerCardProps(officer: Officer) {
     name: officer.name,
     position: officer.position,
     bio: officer.bio,
-    email: officer.email,
     image_url: officer.imageUrl,
-    linkedin_url: officer.linkedinUrl,
     order_index: officer.orderIndex,
   };
 }

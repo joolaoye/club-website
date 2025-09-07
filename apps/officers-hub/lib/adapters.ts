@@ -55,8 +55,6 @@ export function toOfficerUIProps(officer: Officer) {
     position: officer.position,
     bio: officer.bio,
     image_url: officer.imageUrl,
-    linkedin_url: officer.linkedinUrl,
-    email: officer.email,
     order_index: officer.orderIndex,
   };
 }
@@ -226,8 +224,6 @@ export function toCreateOfficerRequest(data: {
   position: string;
   bio?: string;
   imageUrl?: string;
-  linkedinUrl?: string;
-  email?: string;
   orderIndex?: number;
 }) {
   return {
@@ -235,8 +231,6 @@ export function toCreateOfficerRequest(data: {
     position: data.position,
     bio: data.bio,
     image_url: data.imageUrl,
-    linkedin_url: data.linkedinUrl,
-    email: data.email,
     order_index: data.orderIndex,
   };
 }
@@ -249,8 +243,6 @@ export function toUpdateOfficerRequest(data: Partial<{
   position: string;
   bio?: string;
   imageUrl?: string;
-  linkedinUrl?: string;
-  email?: string;
   orderIndex?: number;
 }>) {
   const request: any = {};
@@ -258,8 +250,6 @@ export function toUpdateOfficerRequest(data: Partial<{
   if (data.position !== undefined) request.position = data.position;
   if (data.bio !== undefined) request.bio = data.bio;
   if (data.imageUrl !== undefined) request.image_url = data.imageUrl;
-  if (data.linkedinUrl !== undefined) request.linkedin_url = data.linkedinUrl;
-  if (data.email !== undefined) request.email = data.email;
   if (data.orderIndex !== undefined) request.order_index = data.orderIndex;
   return request;
 }

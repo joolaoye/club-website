@@ -7,8 +7,6 @@ export interface CreateOfficerRequest {
     position: string;
     bio?: string;
     image_url?: string;
-    linkedin_url?: string;
-    email?: string;
     order_index?: number;
 }
 
@@ -17,7 +15,5 @@ export interface UpdateOfficerRequest {
     position?: string;
     bio?: string;
     image_url?: string;
-    linkedin_url?: string;
-    email?: string;
     order_index?: number;
 }

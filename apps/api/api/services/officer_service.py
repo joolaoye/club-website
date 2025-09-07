@@ -44,8 +44,6 @@ class OfficerService:
             position=officer_data['position'],
             bio=officer_data.get('bio'),
             image_url=officer_data.get('image_url'),
-            linkedin_url=officer_data.get('linkedin_url'),
-            email=officer_data.get('email'),
             order_index=officer_data.get('order_index', 0)
         )
         return officer
@@ -60,8 +58,6 @@ class OfficerService:
             position=officer_data['position'],
             bio=officer_data.get('bio'),
             image_url=officer_data.get('image_url'),
-            linkedin_url=officer_data.get('linkedin_url'),
-            email=officer_data.get('email'),
             order_index=officer_data.get('order_index', 0)
         )
         return officer
@@ -70,7 +66,7 @@ class OfficerService:
     @transaction.atomic
     def update_officer_profile(officer, officer_data):
         """Update an existing officer profile."""
-        allowed_fields = ['name', 'position', 'bio', 'image_url', 'linkedin_url', 'email', 'order_index']
+        allowed_fields = ['name', 'position', 'bio', 'image_url', 'order_index']
         
         for field, value in officer_data.items():
             if field in allowed_fields:

@@ -7,7 +7,5 @@ export interface Officer {
     readonly position: string;
     readonly bio: string;
     readonly imageUrl?: string;
-    readonly linkedinUrl?: string;
-    readonly email?: string;
     readonly orderIndex: number;
 }

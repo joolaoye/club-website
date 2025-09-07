@@ -18,9 +18,7 @@ import {
   Save, 
   User,
   AlertCircle,
-  Mail,
   Upload,
-  Linkedin,
   Trash2,
   Image as ImageIcon
 } from "lucide-react";
@@ -36,8 +34,6 @@ interface OfficerFormData {
   position: string;
   bio: string;
   image_url: string;
-  linkedin_url: string;
-  email: string;
   order_index: number;
 }
 
@@ -52,8 +48,6 @@ export default function OfficerEditEditor({ officerId }: OfficerEditEditorProps)
     position: "",
     bio: "",
     image_url: "",
-    linkedin_url: "",
-    email: "",
     order_index: 0,
   });
   const [originalFormData, setOriginalFormData] = useState<OfficerFormData>({
@@ -61,8 +55,6 @@ export default function OfficerEditEditor({ officerId }: OfficerEditEditorProps)
     position: "",
     bio: "",
     image_url: "",
-    linkedin_url: "",
-    email: "",
     order_index: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
@@ -90,8 +82,6 @@ export default function OfficerEditEditor({ officerId }: OfficerEditEditorProps)
         position: officerData.position,
         bio: officerData.bio || "",
         image_url: officerData.imageUrl || "",
-        linkedin_url: officerData.linkedinUrl || "",
-        email: officerData.email || "",
         order_index: officerData.orderIndex,
       };
       
@@ -185,8 +175,6 @@ export default function OfficerEditEditor({ officerId }: OfficerEditEditorProps)
         position: formData.position,
         bio: formData.bio,
         imageUrl: formData.image_url,
-        linkedinUrl: formData.linkedin_url,
-        email: formData.email,
         orderIndex: formData.order_index,
       };
 
@@ -419,39 +407,8 @@ export default function OfficerEditEditor({ officerId }: OfficerEditEditorProps)
               </p>
             </div>
 
-            {/* Contact Info */}
+            {/* Display Order */}
             <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email" className="flex items-center gap-1">
-                  <Mail className="h-4 w-4" />
-                  Contact Email
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="officer@example.com"
-                  value={formData.email}
-                  onChange={(e) => handleFieldChange('email', e.target.value)}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Public contact email (optional, different from user email)
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="linkedin_url" className="flex items-center gap-1">
-                  <Linkedin className="h-4 w-4" />
-                  LinkedIn Profile
-                </Label>
-                <Input
-                  id="linkedin_url"
-                  type="url"
-                  placeholder="https://linkedin.com/in/username"
-                  value={formData.linkedin_url}
-                  onChange={(e) => handleFieldChange('linkedin_url', e.target.value)}
-                />
-              </div>
-
               <div className="space-y-2">
                 <Label htmlFor="order_index">Display Order</Label>
                 <Input
@@ -488,9 +445,7 @@ export default function OfficerEditEditor({ officerId }: OfficerEditEditorProps)
                   name: formData.name || "Officer Name",
                   position: formData.position || "Position",
                   bio: formData.bio || "Officer bio will appear here...",
-                  email: formData.email || undefined,
                   image_url: formData.image_url || undefined,
-                  linkedin_url: formData.linkedin_url || undefined,
                   order_index: formData.order_index,
                 }}
                 variant="public"
@@ -507,7 +462,7 @@ export default function OfficerEditEditor({ officerId }: OfficerEditEditorProps)
             </div>
           </div>
         </div>
-      </div>
+        </div>
 
       {/* Unsaved Changes Dialog */}
       <UnsavedChangesDialog
