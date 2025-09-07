@@ -11,7 +11,10 @@ def create_event_rsvp(request, event_id):
     try:
         event = EventService.get_event_by_id(event_id)
         if not event:
-            return Response({'error': 'Event not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({
+                'error': 'Event not found',
+                'message': f'No event exists with ID {event_id}'
+            }, status=status.HTTP_404_NOT_FOUND)
         
         serializer = RSVPCreateSerializer(data=request.data)
         if serializer.is_valid():
@@ -22,14 +25,20 @@ def create_event_rsvp(request, event_id):
                 return Response(response_serializer.data, status=status.HTTP_201_CREATED)
             else:
                 # RSVP already exists
-                response_serializer = RSVPSerializer(rsvp)
-                return Response(
-                    {
-                        'message': 'RSVP already exists for this email',
-                        'rsvp': response_serializer.data
-                    }, 
-                    status=status.HTTP_409_CONFLICT
-                )
+                if rsvp:
+                    response_serializer = RSVPSerializer(rsvp)
+                    return Response(
+                        {
+                            'message': 'RSVP already exists for this email',
+                            'rsvp': response_serializer.data
+                        }, 
+                        status=status.HTTP_409_CONFLICT
+                    )
+                else:
+                    return Response(
+                        {'error': 'RSVP creation failed'}, 
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                    )
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:

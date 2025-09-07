@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useApiClient, type Event, type EventRSVP, ApiError } from "../lib/api";
 import { 
   toCreateEventRequest, 
@@ -38,11 +38,16 @@ export function useEvents() {
     }
   };
 
-  const addEvent = async (eventData: {
+  const createEvent = async (eventData: {
     title: string;
-    description: string;
-    location: string;
+    description?: string;
+    location?: string;
+    startDate: Date;
     startTime: string;
+    endDate: Date;
+    endTime: string;
+    meetingLink?: string;
+    slidesUrl?: string;
   }) => {
     try {
       setError(null);
@@ -59,11 +64,17 @@ export function useEvents() {
     }
   };
 
-  const editEvent = async (id: string, eventData: Partial<{
+  const updateEvent = async (id: string, eventData: Partial<{
     title: string;
     description: string;
     location: string;
+    startDate: Date;
     startTime: string;
+    endDate: Date;
+    endTime: string;
+    meetingLink: string;
+    slidesUrl: string;
+    recordingUrl: string;
   }>) => {
     try {
       setError(null);
@@ -80,7 +91,7 @@ export function useEvents() {
     }
   };
 
-  const removeEvent = async (id: string) => {
+  const deleteEvent = async (id: string) => {
     try {
       setError(null);
       await api.events.delete(id);
@@ -103,13 +114,48 @@ export function useEvents() {
     }
   };
 
+  const getEventById = useCallback(async (id: string): Promise<Event> => {
+    try {
+      setError(null);
+      
+      // First check if event is already in cache
+      const cachedEvent = events.find(event => event.id === id);
+      if (cachedEvent) {
+        return cachedEvent;
+      }
+      
+      // Only make API call if not in cache
+      const event = await api.events.getById(id);
+      
+      // Add to cache for future use
+      setEvents(prev => {
+        const exists = prev.find(e => e.id === id);
+        if (exists) {
+          return prev.map(e => e.id === id ? event : e);
+        } else {
+          return [...prev, event];
+        }
+      });
+      
+      return event;
+    } catch (err) {
+      const errorMessage = err instanceof ApiError 
+        ? err.message 
+        : "Failed to load event";
+      setError(errorMessage);
+      throw err;
+    }
+  }, [events, api.events]);
+
   return {
     events,
     loading,
     error,
-    addEvent,
-    editEvent,
-    removeEvent,
+    loadEvents,
+    createEvent,
+    updateEvent,
+    deleteEvent,
+    getEventById,
     getRSVPs,
     refetch: loadEvents,
   };

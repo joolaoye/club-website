@@ -7,14 +7,32 @@ export type { EventCardProps } from './components/event-card';
 export type { AnnouncementCardProps } from './components/announcement-card';
 export type { OfficerCardProps } from './components/officer-card';
 
+// Officers Hub Component Props
+export type {
+    RSVP,
+    EventApiClient,
+    EventPermissions,
+    EventCardOfficersHubProps,
+    EventPreviewOfficersHubProps,
+    EventCreateEditorProps,
+    EventEditEditorProps,
+    UnsavedChangesDialogProps
+} from './components/event-officers-hub';
+
 // Form Types
 export type { 
     EventFormData, 
-    EventFormState 
+    EventFormState,
+    EventFormErrors
 } from './forms/event-form';
 export { 
     toCreateEventRequest, 
-    toUpdateEventRequest 
+    toUpdateEventRequest,
+    validateEventForm,
+    combineDateTime,
+    extractDateTime,
+    createInitialEventFormData,
+    eventToFormData
 } from './forms/event-form';
 
 export type { 

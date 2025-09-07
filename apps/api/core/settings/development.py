@@ -37,4 +37,16 @@ LOGGING = {
         'handlers': ['console'],
         'level': 'INFO',
     },
+    'loggers': {
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'api.views': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
 }

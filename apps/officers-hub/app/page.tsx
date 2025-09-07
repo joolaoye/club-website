@@ -1,6 +1,7 @@
 "use client";
 
 import { useNavigation } from "@/components/navigation/NavigationContext";
+import { useApiClient } from "@/lib/api";
 import { AnnouncementPreviewProvider } from "@club-website/ui/components/announcements/AnnouncementPreviewContext";
 import { AnnouncementPreview } from "@club-website/ui/components/announcements/AnnouncementPreview";
 
@@ -13,6 +14,9 @@ import OfficersView from "@/components/views/OfficersView";
 // Editors
 import AnnouncementCreateEditor from "@/components/editors/AnnouncementCreateEditor";
 import AnnouncementEditEditor from "@/components/editors/AnnouncementEditEditor";
+import EventCreateEditor from "@/components/editors/EventCreateEditor";
+import EventEditEditor from "@/components/editors/EventEditEditor";
+import EventPreviewWrapper from "@/components/events/EventPreviewWrapper";
 
 // Update the component to accept props
 interface AnnouncementEditEditorProps {
@@ -23,7 +27,8 @@ import OfficerCreateEditor from "@/components/editors/OfficerCreateEditor";
 import OfficerEditEditor from "@/components/editors/OfficerEditEditor";
 
 export default function RootPage() {
-  const { currentView } = useNavigation();
+  const { currentView, setView } = useNavigation();
+  const api = useApiClient();
 
   // Handle sub-views (editors)
   if (currentView.sub) {
@@ -38,10 +43,25 @@ export default function RootPage() {
         );
       case 'events':
         if (currentView.sub === 'create') {
-          return <div>Event Create Editor (TODO)</div>;
+          return (
+            <EventCreateEditor />
+          );
         }
-        if (currentView.sub === 'edit') {
-          return <div>Event Edit Editor (TODO)</div>;
+        if (currentView.sub === 'edit' && currentView.params?.id) {
+          return (
+            <EventEditEditor
+              eventId={currentView.params.id}
+            />
+          );
+        }
+        if (currentView.sub === 'preview' && currentView.params?.id) {
+          return (
+            <EventPreviewWrapper
+              eventId={currentView.params.id}
+              onBack={() => setView('events')}
+              onEdit={(eventId) => setView('events', 'edit', { id: eventId })}
+            />
+          );
         }
         break;
       case 'officers':

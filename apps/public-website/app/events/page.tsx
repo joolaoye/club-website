@@ -5,9 +5,10 @@ import { Navbar } from "@/components/layouts/Navbar";
 import { Footer } from "@/components/layouts/Footer";
 import { Button } from "@club-website/ui/components/button";
 import { useEvents } from '@/hooks/useEvents';
-import { EventCard } from "@club-website/ui/components/events/EventCard";
+import { EventCardPublic } from "@club-website/ui/components/events/EventCardPublic";
+import { EventPreviewProvider } from "@club-website/ui/components/events/EventPreviewContext";
+import { EventPreview } from "@club-website/ui/components/events/EventPreview";
 import Link from "next/link";
-import { toEventCardProps } from '@/lib/adapters';
 
 const EmptyState = () => (
   <div className="text-center py-12">
@@ -34,10 +35,13 @@ const EmptyState = () => (
 );
 
 export default function EventsPage() {
-  const { upcomingEvents, pastEvents, loading, error } = useEvents();
-  const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
+  const { upcomingEvents, ongoingEvents, pastEvents, loading, error } = useEvents();
+  const [activeTab, setActiveTab] = useState<'upcoming' | 'ongoing' | 'past'>('upcoming');
 
-  const filteredEvents = activeTab === 'upcoming' ? upcomingEvents : pastEvents;
+  const filteredEvents = 
+    activeTab === 'upcoming' ? upcomingEvents :
+    activeTab === 'ongoing' ? ongoingEvents :
+    pastEvents;
 
   if (loading) {
     return (
@@ -54,11 +58,12 @@ export default function EventsPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      <main className="flex-1 pt-16">
+    <EventPreviewProvider>
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-1 pt-16">
         {/* Hero Section */}
-        <section className="py-12">
+        <section className="bg-gradient-to-b from-muted/30 to-background py-12">
           <div className="container mx-auto px-4 max-w-4xl text-center">
             <h1 className="text-4xl font-bold text-foreground mb-6">
               Events
@@ -70,8 +75,8 @@ export default function EventsPage() {
         </section>
 
         {/* Filter Controls */}
-        <section className="py-6 border-b">
-          <div className="container mx-auto px-4 max-w-6xl">
+        <section className="py-6">
+          <div className="container mx-auto px-4 max-w-4xl">
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
               <div className="flex space-x-2">
                 <Button
@@ -80,6 +85,13 @@ export default function EventsPage() {
                   onClick={() => setActiveTab('upcoming')}
                 >
                   Upcoming
+                </Button>
+                <Button
+                  variant={activeTab === 'ongoing' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setActiveTab('ongoing')}
+                >
+                  Ongoing
                 </Button>
                 <Button
                   variant={activeTab === 'past' ? 'default' : 'outline'}
@@ -97,13 +109,13 @@ export default function EventsPage() {
           </div>
         </section>
 
-        {/* Events Grid */}
+        {/* Events List */}
         <section className="pb-16 pt-8">
-          <div className="container mx-auto px-4 max-w-6xl">
+          <div className="container mx-auto px-4 max-w-4xl">
             {filteredEvents.length > 0 ? (
-              <div className="grid gap-6 md:grid-cols-2">
+              <div className="space-y-4">
                 {filteredEvents.map((event) => (
-                  <EventCard key={event.id} event={toEventCardProps(event)} LinkComponent={Link} />
+                  <EventCardPublic key={event.id} event={event} />
                 ))}
               </div>
             ) : (
@@ -111,8 +123,12 @@ export default function EventsPage() {
             )}
           </div>
         </section>
-      </main>
-      <Footer />
-    </div>
+        </main>
+        <Footer />
+      </div>
+      
+      {/* Event Preview Modal */}
+      <EventPreview />
+    </EventPreviewProvider>
   );
 } 

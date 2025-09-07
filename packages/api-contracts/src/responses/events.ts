@@ -7,7 +7,16 @@ export interface EventResponse {
     title: string;
     description: string | null;
     location: string | null;
-    event_date: string;
+    
+    // New timestamp fields
+    start_at: string;
+    end_at: string;
+    
+    // URL fields (no rsvp_link as RSVPs are handled internally)
+    meeting_link: string | null;
+    slides_url: string | null;
+    recording_url: string | null;
+    
     created_by: {
         id: number;
         full_name: string;
@@ -15,10 +24,18 @@ export interface EventResponse {
     } | null;
     created_at: string;
     updated_at: string;
+    
+    // Computed fields
+    status: 'upcoming' | 'ongoing' | 'past';
     is_upcoming: boolean;
+    is_ongoing: boolean;
+    is_past: boolean;
+    can_rsvp: boolean;
     rsvp_count: number;
-    max_attendees: number | null;
-    status?: string;
+    editable_fields: string[];
+    
+    // Legacy field for backward compatibility
+    event_date: string;
 }
 
 export interface EventListResponse {
@@ -30,7 +47,9 @@ export interface EventListResponse {
 
 export interface RSVPResponse {
     id: number;
-    event_id: number;
+    event: number;
+    event_title: string;
+    event_date: string;
     name: string;
     email: string;
     comment: string | null;

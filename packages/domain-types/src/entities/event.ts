@@ -6,16 +6,35 @@ import type { EventStatus } from '../enums/event';
 export interface Event {
     readonly id: string;
     readonly title: string;
-    readonly description: string;
-    readonly location: string;
-    readonly scheduledAt: Date;
+    readonly description: string | null;
+    readonly location: string | null;
+    
+    // New timestamp fields
+    readonly startAt: Date;
+    readonly endAt: Date;
+    
+    // URL fields (no rsvpLink as RSVPs are handled internally)
+    readonly meetingLink: string | null;
+    readonly slidesUrl: string | null;
+    readonly recordingUrl: string | null;
+    
     readonly createdBy: CreatedBy | null;
     readonly rsvpCount: number;
     readonly maxAttendees?: number;
-    readonly isUpcoming: boolean;
+    
+    // Computed status fields
     readonly status: EventStatus;
+    readonly isUpcoming: boolean;
+    readonly isOngoing: boolean;
+    readonly isPast: boolean;
+    readonly canRsvp: boolean;
+    readonly editableFields: string[];
+    
     readonly createdAt: Date;
     readonly updatedAt: Date;
+    
+    // Legacy field for backward compatibility
+    readonly scheduledAt: Date; // Maps to startAt
   }
   
   export interface CreatedBy {

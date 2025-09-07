@@ -30,24 +30,24 @@ class RSVPService:
             return None
     
     @staticmethod
-    @transaction.atomic
     def create_rsvp(event, rsvp_data):
         """
         Create a new RSVP for an event.
         Handles duplicate RSVP prevention.
         """
-        try:
-            rsvp = EventRSVP.objects.create(
-                event=event,
-                name=rsvp_data.get('name'),
-                email=rsvp_data['email'],
-                comment=rsvp_data.get('comment')
-            )
-            return rsvp, True  # Created successfully
-        except IntegrityError:
-            # RSVP already exists for this email and event
-            existing_rsvp = RSVPService.check_existing_rsvp(event, rsvp_data['email'])
+        # First check if RSVP already exists
+        existing_rsvp = RSVPService.check_existing_rsvp(event, rsvp_data['email'])
+        if existing_rsvp:
             return existing_rsvp, False  # Already exists
+        
+        # Create new RSVP
+        rsvp = EventRSVP.objects.create(
+            event=event,
+            name=rsvp_data.get('name'),
+            email=rsvp_data['email'],
+            comment=rsvp_data.get('comment')
+        )
+        return rsvp, True  # Created successfully
     
     @staticmethod
     @transaction.atomic
