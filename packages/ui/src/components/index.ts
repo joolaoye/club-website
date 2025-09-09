@@ -24,9 +24,19 @@ export {
 export { HoverBorderGradient } from './hover-border-gradient.js';
 export { LampContainer } from './lamp.js';
 export { Toaster } from './sonner.js';
+export { Avatar, AvatarFallback, AvatarImage } from './avatar.js';
+export { Collapsible, CollapsibleContent, CollapsibleTrigger } from './collapsible.js';
 
 // Event components
 export { EventCard } from './events/EventCard.js';
+export { EventCardBase } from './events/EventCardBase.js';
+export { EventCardPublic } from './events/EventCardPublic.js';
+export { EventCardOfficersHub } from './events/EventCardOfficersHub.js';
+export { EventPreview } from './events/EventPreview.js';
+export { EventPreviewOfficersHub } from './events/EventPreviewOfficersHub.js';
+export { EventPreviewProvider, useEventPreview } from './events/EventPreviewContext.js';
+export { RSVPDialog } from './events/RSVPDialog.js';
+
 export { EventSkeleton } from './events/EventSkeleton.js';
 export { EventsTeaser } from './events/EventsTeaser.js';
 

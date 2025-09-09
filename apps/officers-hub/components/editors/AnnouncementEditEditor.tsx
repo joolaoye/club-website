@@ -16,6 +16,7 @@ import {
 import { useApiClient } from "@/lib/api";
 import { useNavigation } from "@/components/navigation/NavigationContext";
 import { toast } from "sonner";
+import { toUpdateAnnouncementRequest } from "@/lib/adapters";
 import { UnsavedChangesDialog } from "./UnsavedChangesDialog";
 
 // Simple markdown-like text renderer for live preview
@@ -185,7 +186,9 @@ export default function AnnouncementEditEditor() {
         isDraft: isDraft, // Keep current draft status
       };
 
-      await api.announcements.update(announcementId, announcementData);
+      const request = toUpdateAnnouncementRequest(announcementData);
+
+      await api.announcements.update(announcementId, request);
       
       // Update original values
       setOriginalContent(content);
@@ -224,7 +227,9 @@ export default function AnnouncementEditEditor() {
         isDraft: false, // Publish
       };
 
-      await api.announcements.update(announcementId, announcementData);
+      const request = toUpdateAnnouncementRequest(announcementData);
+
+      await api.announcements.update(announcementId, request);
       
       setIsDraft(false);
       setHasUnsavedChanges(false);

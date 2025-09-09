@@ -24,6 +24,30 @@ export class EventsResource {
     }
 
     /**
+     * Get upcoming events
+     */
+    async getUpcoming(): Promise<Event[]> {
+        const response = await this.transport.get<EventResponse[]>('/events/upcoming/');
+        return response.map(transformEventResponse);
+    }
+
+    /**
+     * Get ongoing events
+     */
+    async getOngoing(): Promise<Event[]> {
+        const response = await this.transport.get<EventResponse[]>('/events/ongoing/');
+        return response.map(transformEventResponse);
+    }
+
+    /**
+     * Get past events
+     */
+    async getPast(): Promise<Event[]> {
+        const response = await this.transport.get<EventResponse[]>('/events/past/');
+        return response.map(transformEventResponse);
+    }
+
+    /**
      * Get a single event by ID
      */
     async getById(id: string): Promise<Event> {
@@ -65,7 +89,7 @@ export class EventsResource {
      * Get all RSVPs for an event
      */
     async getRSVPs(eventId: string): Promise<RSVP[]> {
-        const response = await this.transport.get<RSVPResponse[]>(`/events/${eventId}/rsvps/`);
-        return response.map(transformRSVPResponse);
+        const response = await this.transport.get<{count: number, rsvps: RSVPResponse[]}>(`/events/${eventId}/rsvps/`);
+        return response.rsvps.map(transformRSVPResponse);
     }
 }

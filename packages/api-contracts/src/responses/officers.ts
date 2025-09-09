@@ -8,8 +8,6 @@ export interface OfficerResponse {
     position: string;
     bio: string | null;
     image_url: string | null;
-    linkedin_url: string | null;
-    email: string | null;
     order_index: number;
     user?: {
         id: number;

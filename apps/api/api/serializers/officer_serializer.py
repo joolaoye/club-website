@@ -54,8 +54,6 @@ class OfficerSerializer(serializers.ModelSerializer):
             'position',
             'bio',
             'image_url',
-            'linkedin_url',
-            'email',
             'order_index'
         ]
         read_only_fields = ['id', 'user', 'full_name', 'user_email']
@@ -80,11 +78,8 @@ class OfficerSerializer(serializers.ModelSerializer):
     
     def validate_image_url(self, value):
         """Validate image URL format. Kept for backward compatibility and potential future enhancements."""
-        return validate_url_format(value, "Image URL")
+        return validate_url_format(value, "Image URL", allow_data_urls=True)
     
-    def validate_linkedin_url(self, value):
-        """Validate LinkedIn URL format. Kept for backward compatibility and potential future enhancements."""
-        return validate_url_format(value, "LinkedIn URL")
 
 
 class OfficerCreateSerializer(serializers.ModelSerializer):
@@ -92,7 +87,7 @@ class OfficerCreateSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Officer
-        fields = ['name', 'position', 'bio', 'image_url', 'linkedin_url', 'email', 'order_index'] 
+        fields = ['name', 'position', 'bio', 'image_url', 'order_index'] 
     
     def validate_name(self, value):
         """Validate name length and content."""
@@ -110,9 +105,6 @@ class OfficerCreateSerializer(serializers.ModelSerializer):
         """Validate image URL format. Supports base64 data URLs and regular URLs."""
         return validate_url_format(value, "Image", allow_data_urls=True)
     
-    def validate_linkedin_url(self, value):
-        """Validate LinkedIn URL format. Kept for backward compatibility and potential future enhancements."""
-        return validate_url_format(value, "LinkedIn URL")
 
 
 class OfficerUpdateSerializer(serializers.ModelSerializer):
@@ -120,7 +112,7 @@ class OfficerUpdateSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Officer
-        fields = ['name', 'position', 'bio', 'image_url', 'linkedin_url', 'email', 'order_index']
+        fields = ['name', 'position', 'bio', 'image_url', 'order_index']
     
     def validate_position(self, value):
         """Validate position length and content."""
@@ -130,11 +122,8 @@ class OfficerUpdateSerializer(serializers.ModelSerializer):
     
     def validate_image_url(self, value):
         """Validate image URL format. Kept for backward compatibility and potential future enhancements."""
-        return validate_url_format(value, "Image URL")
+        return validate_url_format(value, "Image URL", allow_data_urls=True)
     
-    def validate_linkedin_url(self, value):
-        """Validate LinkedIn URL format. Kept for backward compatibility and potential future enhancements."""
-        return validate_url_format(value, "LinkedIn URL")
 
 
 class OfficerReorderSerializer(serializers.Serializer):

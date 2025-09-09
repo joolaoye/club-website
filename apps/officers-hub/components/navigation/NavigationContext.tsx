@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 
 type MainView = 'dashboard' | 'announcements' | 'events' | 'officers';
-type SubView = 'create' | 'edit';
+type SubView = 'create' | 'edit' | 'preview';
 
 interface ViewState {
   main: MainView;

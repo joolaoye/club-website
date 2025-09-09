@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Mail, Linkedin, Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@club-website/ui/components/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@club-website/ui/components/avatar";
 import { Button } from "@club-website/ui/components/button";
@@ -13,9 +13,7 @@ export interface OfficerCardProps {
     name: string;
     position?: string;
     bio: string;
-    email?: string;
     image_url?: string;
-    linkedin_url?: string;
     order_index?: number;
   };
   variant?: "public" | "hub";
@@ -45,7 +43,6 @@ export function OfficerCard({
   // Normalize properties for both variants
   const position = officer.position || "Member";
   const imageUrl = officer.image_url;
-  const linkedinUrl = officer.linkedin_url;
   const initials = getInitials(officer.name);
 
   return (
@@ -93,41 +90,6 @@ export function OfficerCard({
 
           {/* Position */}
           <p className="text-sm font-medium text-primary flex-shrink-0">{position}</p>
-
-          {/* Social Links */}
-          {(linkedinUrl || officer.email) && (
-            <div className="flex items-center gap-2 pt-2 flex-shrink-0">
-              {linkedinUrl && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-9 w-9 p-0 text-muted-foreground hover:text-primary hover:bg-primary/10"
-                  asChild
-                >
-                  <a
-                    href={linkedinUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`${officer.name}'s LinkedIn profile`}
-                  >
-                    <Linkedin className="h-4 w-4" />
-                  </a>
-                </Button>
-              )}
-              {officer.email && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-9 w-9 p-0 text-muted-foreground hover:text-primary hover:bg-primary/10"
-                  asChild
-                >
-                  <a href={`mailto:${officer.email}`} aria-label={`Email ${officer.name}`}>
-                    <Mail className="h-4 w-4" />
-                  </a>
-                </Button>
-              )}
-            </div>
-          )}
         </div>
       </CardContent>
     </Card>

@@ -55,7 +55,7 @@ export default function DashboardView() {
       // Fetch all data in parallel
       const [events, announcements, officers] = await Promise.all([
         api.events.getAll(),
-        api.announcements.getAll(),
+        api.announcements.getAllAdmin(),
         api.officers.getAll(),
       ]);
 

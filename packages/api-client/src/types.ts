@@ -43,8 +43,6 @@ export interface ApiUser {
     position: string;
     bio: string | null;
     image_url: string | null;
-    linkedin_url: string | null;
-    email: string | null;
     order_index: number;
   }
   

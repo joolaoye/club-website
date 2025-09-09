@@ -24,7 +24,7 @@ export function useAnnouncements() {
     try {
       setLoading(true);
       setError(null);
-      const announcements = await api.announcements.getAll();
+      const announcements = await api.announcements.getAllAdmin();
       setAnnouncements(announcements);
     } catch (err) {
       const errorMessage = err instanceof ApiError 

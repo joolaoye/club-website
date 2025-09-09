@@ -330,12 +330,11 @@ function AnnouncementsContent() {
               Join our Discord server to get real-time notifications about new announcements, 
               events, and club activities.
             </p>
-            <a 
-              href="#" 
-              className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-primary-foreground bg-primary hover:bg-primary/90 transition-colors"
-            >
-              Join Our Discord
-            </a>
+            <Button size="lg" className="px-8 py-6 text-lg">
+                <a href="https://discord.gg/zeFSpn3VJ9" target="_blank" rel="noopener noreferrer">
+                  Join Our Discord
+                </a>
+            </Button>
           </div>
         </section>
       </main>

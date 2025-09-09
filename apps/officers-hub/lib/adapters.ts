@@ -12,15 +12,17 @@ export function toEventUIProps(event: Event) {
     id: event.id,
     title: event.title,
     description: event.description,
-    startTime: event.scheduledAt.toISOString(),
-    endTime: event.scheduledAt.toISOString(), // Using same time since we don't have endTime
     location: event.location,
-    maxAttendees: event.maxAttendees,
-    currentAttendees: event.rsvpCount,
-    createdBy: event.createdBy,
-    isUpcoming: event.isUpcoming,
-    createdAt: event.createdAt.toISOString(),
-    updatedAt: event.updatedAt.toISOString(),
+    startAt: event.startAt, // Use proper Date objects
+    endAt: event.endAt,     // Use proper Date objects
+    meetingLink: event.meetingLink,
+    slidesUrl: event.slidesUrl,
+    recordingUrl: event.recordingUrl,
+    status: event.status,
+    rsvpCount: event.rsvpCount,
+    canRsvp: event.canRsvp,
+    createdAt: event.createdAt,
+    updatedAt: event.updatedAt,
   };
 }
 
@@ -53,8 +55,6 @@ export function toOfficerUIProps(officer: Officer) {
     position: officer.position,
     bio: officer.bio,
     image_url: officer.imageUrl,
-    linkedin_url: officer.linkedinUrl,
-    email: officer.email,
     order_index: officer.orderIndex,
   };
 }
@@ -74,37 +74,112 @@ export function toRSVPUIProps(rsvp: RSVP) {
 }
 
 /**
- * Transform form data to API request
+ * Combine date and time into a single Date object
+ */
+function combineDateTime(date: Date, time: string): Date {
+  const [hours, minutes] = time.split(':').map(Number);
+  const combined = new Date(date);
+  combined.setHours(hours || 0, minutes || 0, 0, 0);
+  return combined;
+}
+
+/**
+ * Transform form data to API request for creating events
  */
 export function toCreateEventRequest(data: {
   title: string;
-  description: string;
-  location: string;
+  description?: string;
+  location?: string;
+  startDate: Date;
   startTime: string;
+  endDate: Date;
+  endTime: string;
+  meetingLink?: string;
+  slidesUrl?: string;
 }) {
+  const startDateTime = combineDateTime(data.startDate, data.startTime);
+  const endDateTime = combineDateTime(data.endDate, data.endTime);
+  
   return {
     title: data.title,
-    description: data.description || undefined,
-    location: data.location || undefined,
-    event_date: data.startTime,
+    description: data.description || null,
+    location: data.location || null,
+    start_at: startDateTime.toISOString(),
+    end_at: endDateTime.toISOString(),
+    meeting_link: data.meetingLink || null,
+    slides_url: data.slidesUrl || null,
+    recording_url: null // Only for past events during editing
   };
 }
 
 /**
- * Transform form data to API request
+ * Transform form data to API request for updating events
  */
 export function toUpdateEventRequest(data: Partial<{
   title: string;
   description: string;
   location: string;
+  startDate: Date;
   startTime: string;
+  endDate: Date;
+  endTime: string;
+  meetingLink: string;
+  slidesUrl: string;
+  recordingUrl: string;
 }>) {
   const request: any = {};
+  
   if (data.title !== undefined) request.title = data.title;
   if (data.description !== undefined) request.description = data.description;
   if (data.location !== undefined) request.location = data.location;
-  if (data.startTime !== undefined) request.event_date = data.startTime;
+  
+  // Handle date/time combinations
+  if (data.startDate !== undefined && data.startTime !== undefined) {
+    const startDateTime = combineDateTime(data.startDate, data.startTime);
+    request.start_at = startDateTime.toISOString();
+  }
+  
+  if (data.endDate !== undefined && data.endTime !== undefined) {
+    const endDateTime = combineDateTime(data.endDate, data.endTime);
+    request.end_at = endDateTime.toISOString();
+  }
+  
+  if (data.meetingLink !== undefined) request.meeting_link = data.meetingLink;
+  if (data.slidesUrl !== undefined) request.slides_url = data.slidesUrl;
+  if (data.recordingUrl !== undefined) request.recording_url = data.recordingUrl;
+  
   return request;
+}
+
+/**
+ * Extract date and time components from ISO string for form initialization
+ */
+export function extractDateTime(isoString: string): { date: Date; time: string } {
+  const dateTime = new Date(isoString);
+  const date = new Date(dateTime.getFullYear(), dateTime.getMonth(), dateTime.getDate());
+  const time = dateTime.toTimeString().slice(0, 5); // HH:MM format
+  return { date, time };
+}
+
+/**
+ * Transform event domain object to form data for editing
+ */
+export function toEventFormData(event: Event) {
+  const startDateTime = extractDateTime(event.startAt.toISOString());
+  const endDateTime = extractDateTime(event.endAt.toISOString());
+  
+  return {
+    title: event.title,
+    description: event.description || '',
+    location: event.location || '',
+    startDate: startDateTime.date,
+    startTime: startDateTime.time,
+    endDate: endDateTime.date,
+    endTime: endDateTime.time,
+    meetingLink: event.meetingLink || '',
+    slidesUrl: event.slidesUrl || '',
+    recordingUrl: event.recordingUrl || '',
+  };
 }
 
 /**
@@ -149,8 +224,6 @@ export function toCreateOfficerRequest(data: {
   position: string;
   bio?: string;
   imageUrl?: string;
-  linkedinUrl?: string;
-  email?: string;
   orderIndex?: number;
 }) {
   return {
@@ -158,8 +231,6 @@ export function toCreateOfficerRequest(data: {
     position: data.position,
     bio: data.bio,
     image_url: data.imageUrl,
-    linkedin_url: data.linkedinUrl,
-    email: data.email,
     order_index: data.orderIndex,
   };
 }
@@ -172,8 +243,6 @@ export function toUpdateOfficerRequest(data: Partial<{
   position: string;
   bio?: string;
   imageUrl?: string;
-  linkedinUrl?: string;
-  email?: string;
   orderIndex?: number;
 }>) {
   const request: any = {};
@@ -181,8 +250,6 @@ export function toUpdateOfficerRequest(data: Partial<{
   if (data.position !== undefined) request.position = data.position;
   if (data.bio !== undefined) request.bio = data.bio;
   if (data.imageUrl !== undefined) request.image_url = data.imageUrl;
-  if (data.linkedinUrl !== undefined) request.linkedin_url = data.linkedinUrl;
-  if (data.email !== undefined) request.email = data.email;
   if (data.orderIndex !== undefined) request.order_index = data.orderIndex;
   return request;
 }

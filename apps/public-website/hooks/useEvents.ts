@@ -4,6 +4,7 @@ import { createPublicClient, type Event, ApiError } from '@club-website/api-clie
 interface UseEventsReturn {
   events: Event[];
   upcomingEvents: Event[];
+  ongoingEvents: Event[];
   pastEvents: Event[];
   loading: boolean;
   error: string | null;
@@ -44,14 +45,15 @@ export function useEvents(): UseEventsReturn {
     fetchEvents();
   }, []);
 
-  // Filter events into upcoming and past
-  const now = new Date();
-  const upcomingEvents = events.filter(event => event.scheduledAt > now);
-  const pastEvents = events.filter(event => event.scheduledAt <= now).reverse(); // Most recent first
+  // Filter events by status using the new computed properties
+  const upcomingEvents = events.filter(event => event.status === 'upcoming');
+  const ongoingEvents = events.filter(event => event.status === 'ongoing');
+  const pastEvents = events.filter(event => event.status === 'past').reverse(); // Most recent first
 
   return {
     events,
     upcomingEvents,
+    ongoingEvents,
     pastEvents,
     loading,
     error,

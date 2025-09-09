@@ -26,8 +26,6 @@ class Officer(models.Model):
     position = models.CharField(max_length=100, help_text="e.g. 'VP of Tech', 'Treasurer'")
     bio = models.TextField(blank=True, null=True)
     image_url = models.TextField(blank=True, null=True, help_text="Image URL or base64 data")  # Changed to TextField
-    linkedin_url = models.URLField(blank=True, null=True)
-    email = models.EmailField(blank=True, null=True)
     order_index = models.IntegerField(default=0, help_text="Used to control ordering on frontend")
 
     class Meta:
