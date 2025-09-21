@@ -199,11 +199,14 @@ export default function EventCreateEditor() {
       return;
     }
     
+    const [startHour, startMin] = startTime.split(':').map(Number);
+    const [endHour, endMin] = endTime.split(':').map(Number);
+
     const startDateTime = new Date(startDate);
-    startDateTime.setHours(parseInt((startTime as string).split(':')[0]), parseInt((startTime as string).split(':')[1]));
+    startDateTime.setHours(startHour, startMin);
 
     const endDateTime = new Date(endDate);
-    endDateTime.setHours(parseInt((endTime as string).split(':')[0]), parseInt((endTime as string).split(':')[1]));
+    endDateTime.setHours(endHour, endMin);
     
     if (startDateTime >= endDateTime) {
       toast.error('End time must be after start time');
