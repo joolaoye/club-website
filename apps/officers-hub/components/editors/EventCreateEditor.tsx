@@ -199,8 +199,8 @@ export default function EventCreateEditor() {
       return;
     }
     
-    const [startHour, startMin] = startTime.split(':').map(Number);
-    const [endHour, endMin] = endTime.split(':').map(Number);
+    const [startHour, startMin] = startTime.split(':').map(Number) as [number, number];;
+    const [endHour, endMin] = endTime.split(':').map(Number) as [number, number];;
 
     const startDateTime = new Date(startDate);
     startDateTime.setHours(startHour, startMin);
