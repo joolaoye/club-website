@@ -194,6 +194,11 @@ export default function EventCreateEditor() {
     }
     
     // Validate that end time is after start time
+    if (!startTime || !endTime) {
+      toast.error('Please select both start and end times');
+      return;
+    }
+    
     const startDateTime = new Date(startDate);
     startDateTime.setHours(parseInt(startTime.split(':')[0]), parseInt(startTime.split(':')[1]));
     
